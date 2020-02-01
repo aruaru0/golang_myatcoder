@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-// PfsMap :
+// PfsMap : 素因数分解し、マップを作成
 func PfsMap(n int) map[int]int {
 	pfs := make(map[int]int)
 	for n%2 == 0 {

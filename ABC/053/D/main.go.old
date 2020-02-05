@@ -1,0 +1,71 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"sort"
+	"strconv"
+)
+
+func out(x ...interface{}) {
+	fmt.Println(x...)
+}
+
+var sc = bufio.NewScanner(os.Stdin)
+
+func getInt() int {
+	sc.Scan()
+	i, e := strconv.Atoi(sc.Text())
+	if e != nil {
+		panic(e)
+	}
+	return i
+}
+
+func getString() string {
+	sc.Scan()
+	return sc.Text()
+}
+
+// 自力で考えたプログラム。一応ACだけどスマートではない
+func main() {
+	sc.Split(bufio.ScanWords)
+
+	N := getInt()
+	a := make([]int, N)
+	for i := 0; i < N; i++ {
+		a[i] = getInt()
+	}
+	sort.Ints(a)
+
+	a = append(a, a[N-1]+1)
+
+	cnt := 1
+	x := 0
+	x2 := 0
+	for i := 1; i <= N; i++ {
+		if a[i] == a[i-1] {
+			cnt++
+		} else {
+			if cnt > 2 {
+				if cnt%2 == 1 {
+					x += cnt - 1
+					cnt = 1
+				} else {
+					x += cnt - 2
+					cnt = 2
+				}
+			}
+			if cnt == 2 {
+				x2++
+			}
+			cnt = 1
+		}
+	}
+
+	if x2%2 == 1 {
+		x2++
+	}
+	out(N - (x + x2))
+}

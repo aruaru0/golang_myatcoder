@@ -32,7 +32,7 @@ const MAX = 55555
 var pN [MAX]int
 
 func initPrime() {
-	for i := 2; i < MAX/2; i++ {
+	for i := 2; i*i < MAX; i++ {
 		for j := i * 2; j < MAX; j += i {
 			if pN[j] == 0 {
 				pN[j] = i

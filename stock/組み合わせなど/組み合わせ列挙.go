@@ -2,37 +2,35 @@ package main
 
 import "fmt"
 
-func generateComb(index []int, s, r int, ch chan []int) {
-	if r != 0 {
-		if s < 0 {
+//Combination generator for int slice
+func combinations(list []int, choose, buf int) (c chan []int) {
+	c = make(chan []int, buf)
+	go func() {
+		defer close(c)
+		switch {
+		case choose == 0:
+			c <- []int{}
+		case choose == len(list):
+			c <- list
+		case len(list) < choose:
 			return
+		default:
+			for i := 0; i < len(list); i++ {
+				for subComb := range combinations(list[i+1:], choose-1, buf) {
+					c <- append([]int{list[i]}, subComb...)
+				}
+			}
 		}
-		generateComb(index, s-1, r, ch)
-		index[r-1] = s
-		generateComb(index, s-1, r-1, ch)
-	} else {
-		ch <- index
-	}
+	}()
 	return
 }
 
-func Combinations(n, k int, ch chan []int) {
-	index := make([]int, k)
-	generateComb(index, n-1, k, ch)
-	close(ch)
-}
-
 func main() {
-	a := []byte{'a', 'b', 'c', 'd', 'e'}
+	a := []int{1, 2, 3, 4, 5}
+	buf := 5
 
-	// goを使う
-	comb := make(chan []int)
-	go Combinations(5, 3, comb)
-
-	for ch := range comb {
-		for _, v := range ch {
-			fmt.Printf("%c ", a[v])
-		}
-		fmt.Println()
+	fmt.Println("Combinations")
+	for comb := range combinations(a, 3, buf) {
+		fmt.Println(comb)
 	}
 }

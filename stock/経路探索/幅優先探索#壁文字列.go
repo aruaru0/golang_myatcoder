@@ -3,7 +3,8 @@ type queue struct {
 	x, y int
 }
 
-func bfs(H, W int, s []string) [][]int {
+// sx,syからの距離を探索 結果は距離の配列
+func bfs(sx, sy, H, W int, s []string) [][]int {
 	dist := make([][]int, H)
 	// 初期化
 	for i := 0; i < H; i++ {
@@ -13,12 +14,12 @@ func bfs(H, W int, s []string) [][]int {
 		}
 	}
 	q := make([]queue, 0)
-	q = append(q, queue{0, 0})
+	q = append(q, queue{sx, sy})
 
 	dx := []int{0, 1, 0, -1}
 	dy := []int{1, 0, -1, 0}
 
-	dist[0][0] = 0
+	dist[sx][sy] = 0
 	for len(q) != 0 {
 		x := q[0].x
 		y := q[0].y

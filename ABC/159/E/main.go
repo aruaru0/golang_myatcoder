@@ -1,0 +1,118 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+)
+
+func out(x ...interface{}) {
+	//fmt.Println(x...)
+}
+
+var sc = bufio.NewScanner(os.Stdin)
+
+func getInt() int {
+	sc.Scan()
+	i, e := strconv.Atoi(sc.Text())
+	if e != nil {
+		panic(e)
+	}
+	return i
+}
+
+func getString() string {
+	sc.Scan()
+	return sc.Text()
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func asub(a, b int) int {
+	if a > b {
+		return a - b
+	}
+	return b - a
+}
+
+func calcH(i, h int) []int {
+	x := make([]int, 0)
+	b := i
+	cnt := 0
+	for i := 0; i < h; i++ {
+		x = append(x, cnt)
+		if b%2 == 1 {
+			cnt++
+		}
+		b /= 2
+	}
+
+	return x
+}
+
+func main() {
+	sc.Split(bufio.ScanWords)
+	sc.Buffer([]byte{}, 1000000)
+
+	H, W, K := getInt(), getInt(), getInt()
+	a := make([][]int, H)
+	for i := 0; i < H; i++ {
+		a[i] = make([]int, W)
+		s := getString()
+		for j := 0; j < W; j++ {
+			if s[j] == '1' {
+				a[i][j] = 1
+			}
+		}
+	}
+
+	out(a, K)
+
+	ans := 10000000
+	n := 1 << uint(H-1)
+	for i := 0; i < n; i++ {
+		x := calcH(i, H)
+		cnt := x[len(x)-1]
+		sum := make([]int, len(x))
+		for k := 0; k < W; k++ {
+			flg := false
+			sub := make([]int, len(x))
+			for j := 0; j < H; j++ {
+				pos := x[j]
+				sum[pos] += a[j][k]
+				sub[pos] += a[j][k]
+				if sub[pos] > K {
+					cnt = 10000000
+				}
+				if sum[pos] > K {
+					flg = true
+				}
+			}
+			out(x, flg, k)
+			if flg == true {
+				cnt++
+				for j := 0; j < len(sum); j++ {
+					sum[j] = sub[j]
+				}
+			}
+		}
+		if ans > cnt {
+			out(x)
+		}
+		ans = min(ans, cnt)
+	}
+	fmt.Println(ans)
+}

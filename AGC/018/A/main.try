@@ -1,0 +1,108 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"sort"
+	"strconv"
+)
+
+func out(x ...interface{}) {
+	fmt.Println(x...)
+}
+
+var sc = bufio.NewScanner(os.Stdin)
+
+func getInt() int {
+	sc.Scan()
+	i, e := strconv.Atoi(sc.Text())
+	if e != nil {
+		panic(e)
+	}
+	return i
+}
+
+func getString() string {
+	sc.Scan()
+	return sc.Text()
+}
+
+// GCD : greatest common divisor (GCD) via Euclidean algorithm
+func GCD(a, b int) int {
+	for b != 0 {
+		t := b
+		b = a % b
+		a = t
+	}
+	return a
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func check(K int, a map[int]int) (int, map[int]int) {
+	n := len(a)
+	b := make([]int, 0)
+	for i := range a {
+		b = append(b, i)
+	}
+	sort.Ints(b)
+	for i := 1; i < n; i++ {
+		x := b[i] - b[i-1]
+		a[x]++
+	}
+
+	_, ok := a[K]
+	if ok {
+		return 1, a
+	}
+
+	for i := range a {
+		_, e := a[i+K]
+		if e {
+			return 1, a
+		}
+	}
+
+	if len(a) == n {
+		return -1, a
+	} else {
+		return 0, a
+	}
+}
+
+func main() {
+	sc.Split(bufio.ScanWords)
+
+	N, K := getInt(), getInt()
+	a := make(map[int]int, N)
+	m := 0
+	for i := 0; i < N; i++ {
+		x := getInt()
+		a[x]++
+		m = max(m, x)
+	}
+	if m <= K {
+		out("IMPOSSIBLE")
+		return
+	}
+
+	for {
+		var ok int
+		ok, a = check(K, a)
+		if ok == -1 {
+			out("IMPOSSIBLE")
+			return
+		}
+		if ok == 1 {
+			out("POSSIBLE")
+			return
+		}
+	}
+
+}

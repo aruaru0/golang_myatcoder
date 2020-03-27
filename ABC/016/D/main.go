@@ -27,42 +27,54 @@ func getString() string {
 	return sc.Text()
 }
 
-type node struct {
-	to []int
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
 
-func solve(i int, n []node) int {
-	m := make(map[int]int)
-	m[i] = 1
-	for _, v := range n[i].to {
-		m[v] = 1
+func min(a, b int) int {
+	if a < b {
+		return a
 	}
-	k := make(map[int]int)
-	for _, v := range n[i].to {
-		if v == i {
-			continue
-		}
-		for _, w := range n[v].to {
-			if m[w] != 1 {
-				k[w] = 1
-			}
-		}
+	return b
+}
+
+func asub(a, b int) int {
+	if a > b {
+		return a - b
 	}
-	return len(k)
+	return b - a
+}
+
+// 2つの線分に交点があるかどうかを判定
+func judgeIentersected(ax, ay, bx, by, cx, cy, dx, dy int) bool {
+	ta := (cx-dx)*(ay-cy) + (cy-dy)*(cx-ax)
+	tb := (cx-dx)*(by-cy) + (cy-dy)*(cx-bx)
+	tc := (ax-bx)*(cy-ay) + (ay-by)*(ax-cx)
+	td := (ax-bx)*(dy-ay) + (ay-by)*(ax-dx)
+
+	return tc*td < 0 && ta*tb < 0
+	// return tc * td <= 0 && ta * tb <= 0; // 端点を含む場合
 }
 
 func main() {
 	sc.Split(bufio.ScanWords)
-
-	N, M := getInt(), getInt()
-	n := make([]node, N)
-	for i := 0; i < M; i++ {
-		from, to := getInt()-1, getInt()-1
-		n[from].to = append(n[from].to, to)
-		n[to].to = append(n[to].to, from)
-	}
-
+	ax, ay, bx, by := getInt(), getInt(), getInt(), getInt()
+	N := getInt()
+	x := make([]int, N+1)
+	y := make([]int, N+1)
 	for i := 0; i < N; i++ {
-		out(solve(i, n))
+		x[i], y[i] = getInt(), getInt()
 	}
+	x[N], y[N] = x[0], y[0]
+	cnt := 0
+	for i := 1; i <= N; i++ {
+		ret := judgeIentersected(ax, ay, bx, by, x[i], y[i], x[i-1], y[i-1])
+		if ret {
+			cnt++
+		}
+	}
+	out(cnt/2 + 1)
 }

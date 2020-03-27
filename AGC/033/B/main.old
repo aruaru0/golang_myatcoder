@@ -1,0 +1,89 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+)
+
+func out(x ...interface{}) {
+	fmt.Println(x...)
+}
+
+var sc = bufio.NewScanner(os.Stdin)
+
+func getInt() int {
+	sc.Scan()
+	i, e := strconv.Atoi(sc.Text())
+	if e != nil {
+		panic(e)
+	}
+	return i
+}
+
+func getString() string {
+	sc.Scan()
+	return sc.Text()
+}
+
+func main() {
+	sc.Split(bufio.ScanWords)
+	sc.Buffer([]byte{}, 1000000)
+
+	H, W, N := getInt(), getInt(), getInt()
+	sr, sc := getInt(), getInt()
+
+	S, T := getString(), getString()
+
+	cS := make([]int, 4)
+	cT := make([]int, 4)
+
+	for i := 0; i < N; i++ {
+		switch S[i] {
+		case 'L':
+			cS[0]++
+		case 'R':
+			cS[1]++
+		case 'U':
+			cS[2]++
+		case 'D':
+			cS[3]++
+		}
+		LR := cS[0] - cT[1]
+		RL := cS[1] - cT[0]
+		UD := cS[2] - cT[3]
+		DU := cS[3] - cT[2]
+		out(i, "---------------")
+		out(cS, cT)
+		out(LR, RL, UD, DU)
+		out(sc, W+1-sc, sr, H+1-sr)
+		if LR >= sc || RL >= W+1-sc || UD >= sr || DU >= H+1-sr {
+			out("NO")
+			return
+		}
+		switch T[i] {
+		case 'L':
+			cT[0]++
+			if sc+cS[1]-cT[0] == 0 {
+				cT[0]--
+			}
+		case 'R':
+			cT[1]++
+			if sc-cS[0]+cT[1] == W {
+				cT[1]--
+			}
+		case 'U':
+			cT[2]++
+			if sr+cS[3]-cT[2] == 0 {
+				cT[2]--
+			}
+		case 'D':
+			cT[3]++
+			if sc-cS[2]+cT[3] == H {
+				cT[3]--
+			}
+		}
+	}
+	out("YES")
+}

@@ -11,6 +11,7 @@ import (
 //
 // Knuth, Donald (2011), "Section 7.2.1.2: Generating All Permutations",
 // The Art of Computer Programming, volume 4A.
+// ※NextPermutationは辞書順で次を返す
 func NextPermutation(x sort.Interface) bool {
 	n := x.Len() - 1
 	if n < 1 {

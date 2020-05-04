@@ -53,3 +53,35 @@ func upper_bound(a P, x pair) int {
 	}
 	return l
 }
+
+// 整数用
+func lowerBound(a []int, x int) int {
+	l := 0
+	r := len(a) - 1
+	for l <= r {
+		m := (l + r) / 2
+		if a[m] >= x {
+			r = m - 1
+		} else {
+			l = m + 1
+		}
+	}
+	return l
+}
+
+func upperBound(a []int, x int) int {
+	l := 0
+	r := len(a)
+	for l <= r {
+		m := (l + r) / 2
+		if len(a) == m {
+			break
+		}
+		if a[m] <= x {
+			l = m + 1
+		} else {
+			r = m - 1
+		}
+	}
+	return l
+}

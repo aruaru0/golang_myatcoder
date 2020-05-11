@@ -78,57 +78,32 @@ func main() {
 	sc.Buffer([]byte{}, 1000000)
 
 	s := getString()
-	digit := 1
-	n := 0
-	cnt := 0
-	sum := 0
-	m := make([][]int, 0)
-	for i := len(s) - 1; i >= 0; i-- {
-		if s[i] == '?' {
-			b := make([]int, 10)
-			for j := 0; j < 10; j++ {
-				b[j] = (j * digit) % 13
-				// out(j, digit, b[j])
-			}
-			sort.Ints(b)
-			m = append(m, b)
-			// out(b)
-			cnt++
-		} else {
-			x := int(s[i] - '0')
-			n = x * digit
-			n %= 13
-			sum += n
-			sum %= 13
-			// out(x, n)
-		}
-		digit *= 10
-		digit %= 13
-	}
-	// out(sum)
-	// for i := 0; i < cnt; i++ {
-	// 	out(m[i])
-	// }
-
-	dp := make([][]int, cnt+1)
-	for i := 0; i <= cnt; i++ {
+	N := len(s)
+	dp := make([][]int, N+1)
+	for i := 0; i <= N; i++ {
 		dp[i] = make([]int, 13)
 	}
-
 	dp[0][0] = 1
-	for i := 0; i < cnt; i++ {
-		for j := 0; j < 10; j++ {
-			// out(i, j, m[i][j])
-			for k := 0; k < 13; k++ {
-				next := (m[i][j] + k) % 13
-				dp[i+1][next] += dp[i][k]
-				dp[i+1][next] %= mod
-				// out("-->", (m[i][j]+k)%13)
+
+	for i := 0; i < N; i++ {
+		if s[i] == '?' {
+			for j := 0; j < 13; j++ {
+				for x := 0; x < 10; x++ {
+					dp[i+1][(10*j+x)%13] += dp[i][j]
+					dp[i+1][(10*j+x)%13] %= mod
+				}
 			}
-			// dp[i+1][xx] S+= dp[i-1][yy]
+		} else {
+			for j := 0; j < 13; j++ {
+				x := int(s[i] - '0')
+				dp[i+1][(10*j+x)%13] += dp[i][j]
+				dp[i+1][(10*j+x)%13] %= mod
+			}
 		}
 	}
+	// for i := 0; i <= N; i++ {
+	// 	out(dp[i])
+	// }
 
-	pos := []int{5, 4, 3, 2, 1, 0, 12, 11, 10, 9, 8, 7, 6}
-	out(dp[cnt][pos[sum]])
+	out(dp[N][5])
 }

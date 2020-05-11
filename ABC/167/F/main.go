@@ -71,64 +71,70 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-const mod = 1000000007
-
 func main() {
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, 1000000)
-
-	s := getString()
-	digit := 1
-	n := 0
-	cnt := 0
-	sum := 0
-	m := make([][]int, 0)
-	for i := len(s) - 1; i >= 0; i-- {
-		if s[i] == '?' {
-			b := make([]int, 10)
-			for j := 0; j < 10; j++ {
-				b[j] = (j * digit) % 13
-				// out(j, digit, b[j])
-			}
-			sort.Ints(b)
-			m = append(m, b)
-			// out(b)
-			cnt++
-		} else {
-			x := int(s[i] - '0')
-			n = x * digit
-			n %= 13
-			sum += n
-			sum %= 13
-			// out(x, n)
-		}
-		digit *= 10
-		digit %= 13
+	N := getInt()
+	s := make([]string, N)
+	for i := 0; i < N; i++ {
+		s[i] = getString()
 	}
-	// out(sum)
-	// for i := 0; i < cnt; i++ {
-	// 	out(m[i])
-	// }
-
-	dp := make([][]int, cnt+1)
-	for i := 0; i <= cnt; i++ {
-		dp[i] = make([]int, 13)
-	}
-
-	dp[0][0] = 1
-	for i := 0; i < cnt; i++ {
-		for j := 0; j < 10; j++ {
-			// out(i, j, m[i][j])
-			for k := 0; k < 13; k++ {
-				next := (m[i][j] + k) % 13
-				dp[i+1][next] += dp[i][k]
-				dp[i+1][next] %= mod
-				// out("-->", (m[i][j]+k)%13)
+	c := make([][2]int, N)
+	for i := 0; i < N; i++ {
+		for _, v := range s[i] {
+			if v == '(' {
+				c[i][0]++
+			} else {
+				if c[i][0] == 0 {
+					c[i][1]++
+				} else {
+					c[i][0]--
+				}
 			}
-			// dp[i+1][xx] S+= dp[i-1][yy]
 		}
 	}
+	sort.Slice(c, func(i, j int) bool {
+		if c[i][1] == 0 {
+			return true
+		}
+		if c[j][1] == 0 {
+			return false
+		}
+		if c[i][0] == 0 {
+			return false
+		}
+		if c[j][0] == 0 {
+			return true
+		}
+		di := c[i][0] - c[i][1]
+		dj := c[j][0] - c[j][1]
+		return di > dj
+	})
 
-	pos := []int{5, 4, 3, 2, 1, 0, 12, 11, 10, 9, 8, 7, 6}
-	out(dp[cnt][pos[sum]])
+	if c[0][1] != 0 {
+		out("No")
+		return
+	}
+
+	// out(c)
+
+	l := c[0][0]
+	r := c[0][1]
+	for i := 1; i < N; i++ {
+		x := min(l, c[i][1])
+		y := min(r, c[i][0])
+		l = l - x + c[i][0] - y
+		r = r - y + c[i][1] - x
+		if r > 0 {
+			out("No")
+			return
+		}
+		// out(c[i], x, y, l, r)
+	}
+	// if l == 0 && r == 0 && cntl == cntr {
+	if l == 0 && r == 0 {
+		out("Yes")
+	} else {
+		out("No")
+	}
 }

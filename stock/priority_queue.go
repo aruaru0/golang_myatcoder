@@ -10,10 +10,12 @@ func out(x ...interface{}) {
 }
 
 // Priority Queue
+// Item :
 type Item struct {
 	priority, value, index int
 }
 
+// PQ :
 type PQ []*Item
 
 func (pq PQ) Len() int {
@@ -30,6 +32,7 @@ func (pq PQ) Swap(i, j int) {
 	pq[j].index = j
 }
 
+// Push :
 func (pq *PQ) Push(x interface{}) {
 	n := len(*pq)
 	item := x.(*Item)
@@ -37,6 +40,7 @@ func (pq *PQ) Push(x interface{}) {
 	*pq = append(*pq, item)
 }
 
+// Pop :
 func (pq *PQ) Pop() interface{} {
 	old := *pq
 	n := len(old)

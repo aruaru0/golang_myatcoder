@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -27,16 +28,59 @@ func getString() string {
 	return sc.Text()
 }
 
+// min, max, asub, absなど基本関数
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func asub(a, b int) int {
+	if a > b {
+		return a - b
+	}
+	return b - a
+}
+
+func abs(a int) int {
+	if a >= 0 {
+		return a
+	}
+	return -a
+}
+
+func lowerBound(a []int, x int) int {
+	idx := sort.Search(len(a), func(i int) bool {
+		return a[i] >= x
+	})
+	return idx
+}
+
+func upperBound(a []int, x int) int {
+	idx := sort.Search(len(a), func(i int) bool {
+		return a[i] > x
+	})
+	return idx
+}
+
 func main() {
 	sc.Split(bufio.ScanWords)
-
 	S, T := getString(), getString()
 	A, B := getInt(), getInt()
 	U := getString()
 
-	if U == S {
+	if S == U {
 		A--
-	} else if U == T {
+	}
+	if T == U {
 		B--
 	}
 	out(A, B)

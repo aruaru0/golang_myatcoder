@@ -13,45 +13,6 @@ func out(x ...interface{}) {
 	fmt.Println(x...)
 }
 
-// Priority Queue
-type Item struct {
-	priority, value, index int
-}
-
-type PQ []*Item
-
-func (pq PQ) Len() int {
-	return len(pq)
-}
-
-func (pq PQ) Less(i, j int) bool {
-	return pq[i].priority < pq[j].priority
-}
-
-func (pq PQ) Swap(i, j int) {
-	pq[i], pq[j] = pq[j], pq[i]
-	pq[i].index = i
-	pq[j].index = j
-}
-
-func (pq *PQ) Push(x interface{}) {
-	n := len(*pq)
-	item := x.(*Item)
-	item.index = n
-	*pq = append(*pq, item)
-}
-
-func (pq *PQ) Pop() interface{} {
-	old := *pq
-	n := len(old)
-	item := old[n-1]
-	item.index = -1
-	*pq = old[0 : n-1]
-	return item
-}
-
-// End Priority Queue
-
 var sc = bufio.NewScanner(os.Stdin)
 
 func getInt() int {
@@ -68,20 +29,68 @@ func getString() string {
 	return sc.Text()
 }
 
-// Path
+// Priority Queue
+// Item :
+type Item struct {
+	priority, value, index int
+}
+
+// PQ :
+type PQ []*Item
+
+// Len :
+func (pq PQ) Len() int {
+	return len(pq)
+}
+
+// Less :
+func (pq PQ) Less(i, j int) bool {
+	return pq[i].priority < pq[j].priority
+}
+
+// Swap :
+func (pq PQ) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+	pq[i].index = i
+	pq[j].index = j
+}
+
+// Push :
+func (pq *PQ) Push(x interface{}) {
+	n := len(*pq)
+	item := x.(*Item)
+	item.index = n
+	*pq = append(*pq, item)
+}
+
+// Pop :
+func (pq *PQ) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	item.index = -1
+	*pq = old[0 : n-1]
+	return item
+}
+
+// End Priority Queue
+
+// Edge :
 type Edge struct {
 	to, cost int
 }
 
+// Path :
 type Path struct {
 	edges []Edge
 }
 
-// Dijkstra
+// Route :
 type Route struct {
 	path []int
 }
 
+// Dijkstra :
 func Dijkstra(N, S int, path []Path) ([]int, []Route) {
 	pq := make(PQ, 0)
 	heap.Init(&pq)
@@ -103,7 +112,9 @@ func Dijkstra(N, S int, path []Path) ([]int, []Route) {
 		for _, e := range path[v].edges {
 			if d[e.to] > d[v]+e.cost {
 				d[e.to] = d[v] + e.cost
-				r[e.to].path = append(r[v].path, e.to)
+				r[e.to].path = make([]int, len(r[v].path))
+				copy(r[e.to].path, r[v].path)
+				r[e.to].path = append(r[e.to].path, e.to)
 				heap.Push(&pq, &Item{d[e.to], e.to, 0})
 			}
 		}

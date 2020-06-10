@@ -73,40 +73,34 @@ func upperBound(a []int, x int) int {
 
 func main() {
 	sc.Split(bufio.ScanWords)
-
-	H, W := getInt(), getInt()
-	N := getInt()
-	a := make([]int, N)
+	N, C := getInt(), getInt()
+	s := make([]int, N)
+	t := make([]int, N)
+	c := make([]int, N)
 	for i := 0; i < N; i++ {
-		a[i] = getInt()
+		s[i], t[i], c[i] = getInt(), getInt(), getInt()-1
 	}
 
-	dirc := true
-	idx := 0
-	cnt := 0
-	for y := 0; y < H; y++ {
-		b := make([]int, W)
-		for x := 0; x < W; x++ {
-			xx := x
-			if !dirc {
-				xx = W - 1 - x
-			}
-			b[xx] = idx + 1
-			cnt++
-			if a[idx] == cnt {
-				cnt = 0
-				idx++
-			}
-		}
-		for x := 0; x < W; x++ {
-			fmt.Print(b[x], " ")
-		}
-		out()
-		if dirc {
-			dirc = false
-		} else {
-			dirc = true
+	p := make([][]int, C)
+	for i := 0; i < C; i++ {
+		p[i] = make([]int, 100005)
+	}
+	for i := 0; i < N; i++ {
+		// out(s[i], t[i], c[i])
+		for j := s[i] - 1; j < t[i]; j++ {
+			p[c[i]][j] = 1
 		}
 	}
 
+	ans := 0
+	for i := 0; i <= 100000; i++ {
+		cnt := 0
+		for c := 0; c < C; c++ {
+			if p[c][i] == 1 {
+				cnt++
+			}
+		}
+		ans = max(ans, cnt)
+	}
+	out(ans)
 }

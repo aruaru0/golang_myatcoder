@@ -66,9 +66,10 @@ func (tree *SegmentTree) UpdateAt(index int, value interface{}) {
 	idx := tree.offset - 1 + index
 	tree.data[idx] = value
 	for idx >= 1 {
-		parent := idx / 2
-		left := parent * 2
-		right := parent*2 + 1
+		parent := (idx - 1) / 2
+		left := parent*2 + 1
+		right := parent*2 + 2
+		// out(idx, tree.data[left], tree.data[right], left, right, parent)
 		tree.data[parent] = tree.merge(tree.data[left], tree.data[right])
 		idx = parent
 	}
@@ -121,7 +122,7 @@ func dataInitSegmentTree(a []data, inf data, merge Merger) *SegmentTree {
 	return InitSegmentTree(vec, inf, merge)
 }
 
-func (tree *SegmentTree) dataUpdateAt(index int, value int) {
+func (tree *SegmentTree) dataUpdateAt(index int, value data) {
 	tree.UpdateAt(index, interface{}(value))
 }
 
@@ -130,15 +131,21 @@ func main() {
 		[]int{1, 9, 5, 3, 7, 2, 4, 6, 8},
 		1e9, IntMergerMin)
 	fmt.Println(seg)
+	fmt.Println(seg.data[15:])
+	seg.UpdateIntAt(0, 0)
+	fmt.Println(seg)
+	fmt.Println(seg.data[15:])
 
 	fmt.Println(seg.GetRange(1, 2))
 	fmt.Println(seg.GetRange(3, 5))
 	fmt.Println(seg.GetRange(0, 9))
 	fmt.Println(seg.GetRange(5, 7))
 	fmt.Println(seg.GetRange(2, 4))
-
+	fmt.Println(seg)
 	seg.UpdateIntAt(1, 2)
-	seg.UpdateIntAt(2, 11)
+	fmt.Println(seg)
+	seg.UpdateIntAt(2, 0)
+	fmt.Println(seg)
 
 	fmt.Println(seg.GetRange(1, 4))
 
@@ -148,4 +155,7 @@ func main() {
 	fmt.Println(segA)
 	fmt.Println(segA.GetRange(0, 4))
 	fmt.Println(segA.GetRange(2, 4))
+	fmt.Println(segA)
+	segA.dataUpdateAt(0, data{0, 3})
+	fmt.Println(segA)
 }

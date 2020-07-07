@@ -130,10 +130,7 @@ func main() {
 	ans := 0
 	for i := 0; i < N; i++ {
 		if dist1[i] > dist2[i] {
-			diff := dist1[i] - dist2[i]
-			// out(dist1[i], dist2[i], diff)
-			ans = max(ans, dist2[i]+diff-1)
-
+			ans = max(ans, dist1[i]-1)
 		}
 	}
 	out(ans)

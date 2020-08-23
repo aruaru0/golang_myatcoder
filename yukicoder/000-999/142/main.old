@@ -1,0 +1,173 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"sort"
+	"strconv"
+)
+
+func out(x ...interface{}) {
+	fmt.Println(x...)
+}
+
+var sc = bufio.NewScanner(os.Stdin)
+
+func getInt() int {
+	sc.Scan()
+	i, e := strconv.Atoi(sc.Text())
+	if e != nil {
+		panic(e)
+	}
+	return i
+}
+
+func getInts(N int) []int {
+	ret := make([]int, N)
+	for i := 0; i < N; i++ {
+		ret[i] = getInt()
+	}
+	return ret
+}
+
+func getString() string {
+	sc.Scan()
+	return sc.Text()
+}
+
+// min, max, asub, absなど基本関数
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func asub(a, b int) int {
+	if a > b {
+		return a - b
+	}
+	return b - a
+}
+
+func abs(a int) int {
+	if a >= 0 {
+		return a
+	}
+	return -a
+}
+
+func lowerBound(a []int, x int) int {
+	idx := sort.Search(len(a), func(i int) bool {
+		return a[i] >= x
+	})
+	return idx
+}
+
+func upperBound(a []int, x int) int {
+	idx := sort.Search(len(a), func(i int) bool {
+		return a[i] > x
+	})
+	return idx
+}
+
+func makeMask(m uint, from, to int) uint {
+	for i := 0; i < 64; i++ {
+		if i >= from && i <= to {
+			m |= 1 << (63 - i)
+		}
+	}
+	return m
+}
+
+func main() {
+	// mask := uint(0)
+	// mask = makeMask(mask, 0, 10)
+	// fmt.Printf("%64.64b\n", mask)
+	// return
+	sc.Split(bufio.ScanWords)
+	N, S, X, Y, Z := getInt(), getInt(), getInt(), getInt(), getInt()
+	A := make([]int, N)
+	A[0] = S
+	for i := 1; i < N; i++ {
+		A[i] = (X*A[i-1] + Y) % Z
+	}
+	n := (N + 63) / 64
+	a := make([]uint, n)
+	for i := 0; i < N; i++ {
+		pos := i / 64
+		bit := 63 - i%64
+		if A[i]%2 == 1 {
+			a[pos] |= 1 << bit
+		}
+	}
+	Q := getInt()
+	b := make([]uint, N)
+	c := make([]uint, N)
+	for k := 0; k < Q; k++ {
+		s, t, u, v := getInt()-1, getInt()-1, getInt()-1, getInt()-1
+		sd, sm, td, tm := s/64, s%64, t/64, t%64
+		ud, um, vd := u/64, u%64, v/64
+		b = make([]uint, n+1)
+		cnt := 0
+		for i := sd; i <= td; i++ {
+			mask := uint(1<<64 - 1)
+			if i == sd {
+				mask ^= (1<<64 - 1) << (64 - sm)
+			}
+			if i == td {
+				mask ^= (1<<64 - 1) >> (tm + 1)
+			}
+			x := a[i] & mask
+			b[cnt] = x
+			// fmt.Printf("%64.64b\n", b[cnt])
+			cnt++
+		}
+
+		c = make([]uint, n+1)
+		if um > sm {
+			for i := 0; i < cnt; i++ {
+				c[i] |= b[i] >> (um - sm)
+				c[i+1] |= b[i] << (64 - (um - sm))
+			}
+			for i := 0; i < cnt; i++ {
+				// fmt.Printf("%64.64b %64.64b\n", b[i], c[i])
+			}
+		} else {
+			for i := 0; i < cnt; i++ {
+				if i != 0 {
+					c[i-1] |= b[i] >> (64 - (sm - um))
+				}
+				c[i] |= b[i] << (sm - um)
+			}
+			for i := 0; i < cnt; i++ {
+				// fmt.Printf("%64.64b %64.64b\n", b[i], c[i])
+			}
+		}
+		for i, j := ud, 0; i <= vd; i++ {
+			a[i] ^= c[j]
+			j++
+		}
+	}
+
+	w := bufio.NewWriter(os.Stdout)
+	defer w.Flush()
+	for i := 0; i < N; i++ {
+		pos := i / 64
+		bit := 63 - i%64
+		if a[pos]&(1<<bit) != 0 {
+			fmt.Fprint(w, "O")
+		} else {
+			fmt.Fprint(w, "E")
+		}
+	}
+	fmt.Fprintln(w)
+}

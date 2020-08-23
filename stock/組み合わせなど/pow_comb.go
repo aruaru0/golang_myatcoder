@@ -13,6 +13,9 @@ var IFac [300001]int
 
 // 乗数計算（MOD)
 func mpow(x, n int) int {
+	if x == 0 {
+		return 0
+	}
 	ans := 1
 	for n != 0 {
 		if n&1 == 1 {

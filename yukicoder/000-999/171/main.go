@@ -1,0 +1,121 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"sort"
+	"strconv"
+)
+
+func out(x ...interface{}) {
+	fmt.Println(x...)
+}
+
+var sc = bufio.NewScanner(os.Stdin)
+
+func getInt() int {
+	sc.Scan()
+	i, e := strconv.Atoi(sc.Text())
+	if e != nil {
+		panic(e)
+	}
+	return i
+}
+
+func getInts(N int) []int {
+	ret := make([]int, N)
+	for i := 0; i < N; i++ {
+		ret[i] = getInt()
+	}
+	return ret
+}
+
+func getString() string {
+	sc.Scan()
+	return sc.Text()
+}
+
+// min, max, asub, absなど基本関数
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func asub(a, b int) int {
+	if a > b {
+		return a - b
+	}
+	return b - a
+}
+
+func abs(a int) int {
+	if a >= 0 {
+		return a
+	}
+	return -a
+}
+
+func lowerBound(a []int, x int) int {
+	idx := sort.Search(len(a), func(i int) bool {
+		return a[i] >= x
+	})
+	return idx
+}
+
+func upperBound(a []int, x int) int {
+	idx := sort.Search(len(a), func(i int) bool {
+		return a[i] > x
+	})
+	return idx
+}
+
+const mod = 573
+
+var C [1100][1100]int // C[n][k] -> nCk
+
+func combTable(N int) {
+	C[0][0] = 1
+	for i := 1; i <= N; i++ {
+		for j := 0; j <= N; j++ {
+			if j == 0 || j == i {
+				C[i][j] = 1
+			} else {
+				C[i][j] = C[i-1][j-1] + C[i-1][j]
+				C[i][j] %= mod
+			}
+		}
+	}
+}
+
+func main() {
+	sc.Split(bufio.ScanWords)
+	sc.Buffer([]byte{}, 1000000)
+	S := getString()
+	m := make(map[byte]int)
+	for i := 0; i < len(S); i++ {
+		m[S[i]]++
+	}
+
+	ans := 1
+	n := len(S)
+	combTable(n)
+	for _, e := range m {
+		ans *= C[n][e]
+		ans %= mod
+		n -= e
+	}
+	ans--
+	ans += mod
+	ans %= mod
+	out(ans)
+}

@@ -1,0 +1,188 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"sort"
+	"strconv"
+)
+
+func out(x ...interface{}) {
+	fmt.Println(x...)
+}
+
+var sc = bufio.NewScanner(os.Stdin)
+
+func getInt() int {
+	sc.Scan()
+	i, e := strconv.Atoi(sc.Text())
+	if e != nil {
+		panic(e)
+	}
+	return i
+}
+
+func getInts(N int) []int {
+	ret := make([]int, N)
+	for i := 0; i < N; i++ {
+		ret[i] = getInt()
+	}
+	return ret
+}
+
+func getString() string {
+	sc.Scan()
+	return sc.Text()
+}
+
+// min, max, asub, absなど基本関数
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func asub(a, b int) int {
+	if a > b {
+		return a - b
+	}
+	return b - a
+}
+
+func abs(a int) int {
+	if a >= 0 {
+		return a
+	}
+	return -a
+}
+
+func lowerBound(a []int, x int) int {
+	idx := sort.Search(len(a), func(i int) bool {
+		return a[i] >= x
+	})
+	return idx
+}
+
+func upperBound(a []int, x int) int {
+	idx := sort.Search(len(a), func(i int) bool {
+		return a[i] > x
+	})
+	return idx
+}
+
+var id, N, K int
+
+type pair struct {
+	n, col int
+}
+
+var dx []int = []int{-1, 1, 0, 0}
+var dy []int = []int{0, 0, -1, 1}
+
+type pos struct {
+	x, y int
+	col  int
+}
+
+func check() []pos {
+	ret := make([]pos, 0)
+
+	for y := 1; y < N-1; y++ {
+		for x := 1; x < N-1; x++ {
+			if (a[y-1][x] == a[y+1][x]) &&
+				(a[y][x-1] == a[y][x+1]) &&
+				(a[y+1][x] == a[y][x+1]) {
+				col := int(a[y][x+1] - '0')
+				ret = append(ret, pos{x + 1, y + 1, col})
+				a[y][x] = a[y][x+1]
+			}
+		}
+	}
+	return ret
+}
+
+func paint(x, y, tgt int) {
+	q := make([]pos, 0)
+	q = append(q, pos{x, y, tgt})
+	c := a[y][x]
+	t := byte(tgt + '0')
+	for len(q) != 0 {
+		cx := q[0].x
+		cy := q[0].y
+		q = q[1:]
+		a[cy][cx] = t
+		for i := 0; i < 4; i++ {
+			px := cx + dx[i]
+			py := cy + dy[i]
+			if px < 0 || py < 0 || px >= N || py >= N {
+				continue
+			}
+			if a[py][px] != c {
+				continue
+			}
+			q = append(q, pos{px, py, tgt})
+		}
+	}
+}
+
+var a [][]byte
+
+func main() {
+	sc.Split(bufio.ScanWords)
+	sc.Buffer([]byte{}, 1000000)
+	w := bufio.NewWriter(os.Stdout)
+	defer w.Flush()
+	id, N, K = getInt(), getInt(), getInt()
+
+	a = make([][]byte, N)
+	for i := 0; i < N; i++ {
+		a[i] = []byte(getString())
+	}
+	cnt := make([]pair, 10)
+	for y := 0; y < N; y++ {
+		for x := 0; x < N; x++ {
+			col := int(a[y][x] - '0')
+			cnt[col] = pair{cnt[col].n + 1, col}
+		}
+	}
+	sort.Slice(cnt, func(i, j int) bool {
+		return cnt[i].n > cnt[j].n
+	})
+
+	tgt := cnt[0].col
+	//ans := make([]pos, 0)
+	ans := check()
+	for y := 0; y < N; y++ {
+		for x := 0; x < N; x++ {
+			s := int(a[y][x] - '0')
+			if s != tgt {
+				paint(x, y, tgt)
+				// out(x, y, tgt)
+				// for i := 0; i < N; i++ {
+				// 	out(string(a[i]))
+				// }
+				// out("---------")
+				ans = append(ans, pos{x + 1, y + 1, tgt})
+			}
+		}
+	}
+
+	// for i := 0; i < N; i++ {
+	// 	out(i, string(a[i]))
+	// }
+	// out("---------")
+
+	fmt.Fprintln(w, len(ans))
+	for _, e := range ans {
+		fmt.Fprintln(w, e.y, e.x, e.col)
+	}
+}

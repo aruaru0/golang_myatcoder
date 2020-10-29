@@ -45,7 +45,7 @@ func (p *UnionFind) root(x int) int {
 	if p.d[x] < 0 {
 		return x
 	}
-	p.d[x] = p.root(p.d[x])
+	p.d[x] = p.root(p.d[x]) // ※親を検索したら、リンクを更新。書き換え時要注意
 	return p.d[x]
 }
 

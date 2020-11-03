@@ -207,60 +207,32 @@ func (m *modint) modinv(a int) int {
 	return u
 }
 
-var mod = newModint(int(1e9 + 7))
-
-func mulS(a, b [][]int) [][]int {
-	c := make([][]int, 2)
-	c[0] = []int{
-		mod.add(mod.mul(a[0][0], b[0][0]), mod.mul(a[0][1], b[1][0])), mod.add(mod.mul(a[0][0], b[0][1]), mod.mul(a[0][1], b[1][1]))}
-	c[1] = []int{
-		mod.add(mod.mul(a[1][0], b[0][0]), mod.mul(a[1][1], b[1][0])), mod.add(mod.mul(a[1][0], b[0][1]), mod.mul(a[1][1], b[1][1]))}
-	return c
-}
-
-func mul(a [][]int, k int) [][]int {
-	//	b := make([][]int, 2)
-	ret := make([][]int, 2)
-	for i := 0; i < 2; i++ {
-		ret[i] = make([]int, 2)
-	}
-	ret[0][0] = 1
-	ret[1][1] = 1
-	// copy(b, a)
-	for k > 0 {
-		if k%2 == 1 {
-			ret = mulS(ret, a)
-		}
-		a = mulS(a, a)
-		k /= 2
-	}
-	// out(b)
-	return ret
-}
-
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, 1000000)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N, M, K, p, q := getI(), getI(), getI(), getI(), getI()
-	b := getInts(N)
+	P, N := getI(), getI()
 
-	a := make([][]int, 2)
-	a[0] = []int{mod.sub(1, mod.div(p, q)), mod.div(p, q)}
-	a[1] = []int{mod.div(p, q), mod.sub(1, mod.div(p, q))}
+	// i < P/2の部分のマイナスの数の偶奇に注目
+	// for i := 1; i < P; i++ {
+	// 	x := i * N % P
+	// 	if x <= P/2 {
+	// 		out(x)
+	// 	} else {
+	// 		out(x - P)
+	// 	}
+	// 	if i == P/2 {
+	// 		out("------")
+	// 	}
+	// }
 
-	a = mod.powModMatrix(a, K)
-	ans := 0
-	for i := 0; i < N; i++ {
-		if i < M {
-			e := mod.mul(b[i], a[0][0])
-			ans = mod.add(ans, e)
-		} else {
-			e := mod.mul(b[i], a[0][1])
-			ans = mod.add(ans, e)
-		}
+	mod := newModint(P)
+
+	if mod.pow(N, P/2) == 1 {
+		out(0)
+		return
 	}
-	out(ans)
+	out(1)
 }

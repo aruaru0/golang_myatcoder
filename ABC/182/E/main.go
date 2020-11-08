@@ -95,11 +95,87 @@ func main() {
 	sc.Buffer([]byte{}, 1000000)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	D := getI()
-	diff := 25 - D
-	s := "Christmas"
-	for i := 0; i < diff; i++ {
-		s = s + " Eve"
+	H, W := getI(), getI()
+	N, M := getI(), getI()
+	s := make([][]byte, H)
+	a := make([][]bool, H)
+	for i := 0; i < H; i++ {
+		s[i] = make([]byte, W)
+		a[i] = make([]bool, W)
+		for j := 0; j < W; j++ {
+			s[i][j] = '.'
+		}
 	}
-	out(s)
+	for i := 0; i < N; i++ {
+		a, b := getI()-1, getI()-1
+		s[a][b] = 'o'
+	}
+	for i := 0; i < M; i++ {
+		c, d := getI()-1, getI()-1
+		s[c][d] = 'x'
+	}
+
+	for y := 0; y < H; y++ {
+		flg := false
+		for x := 0; x < W; x++ {
+			if s[y][x] == 'o' {
+				flg = true
+			}
+			if s[y][x] == 'x' {
+				flg = false
+			}
+			a[y][x] = a[y][x] || flg
+		}
+		flg = false
+		for x := W - 1; x >= 0; x-- {
+			if s[y][x] == 'o' {
+				flg = true
+			}
+			if s[y][x] == 'x' {
+				flg = false
+			}
+			a[y][x] = a[y][x] || flg
+		}
+	}
+
+	for x := 0; x < W; x++ {
+		flg := false
+		for y := 0; y < H; y++ {
+			if s[y][x] == 'o' {
+				flg = true
+			}
+			if s[y][x] == 'x' {
+				flg = false
+			}
+			a[y][x] = a[y][x] || flg
+		}
+		flg = false
+		for y := H - 1; y >= 0; y-- {
+			if s[y][x] == 'o' {
+				flg = true
+			}
+			if s[y][x] == 'x' {
+				flg = false
+			}
+			a[y][x] = a[y][x] || flg
+		}
+	}
+
+	// for i := 0; i < H; i++ {
+	// 	out(string(s[i]))
+	// }
+
+	// for i := 0; i < H; i++ {
+	// 	out(a[i])
+	// }
+
+	ans := 0
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			if a[i][j] == true {
+				ans++
+			}
+		}
+	}
+	out(ans)
 }

@@ -95,11 +95,13 @@ func main() {
 	sc.Buffer([]byte{}, 1000000)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	D := getI()
-	diff := 25 - D
-	s := "Christmas"
-	for i := 0; i < diff; i++ {
-		s = s + " Eve"
+	N := getI()
+	p := getInts(N)
+	sort.Ints(p)
+	cnt := 0
+	for i := 0; i < N-1; i++ {
+		cnt += p[i]
 	}
-	out(s)
+	cnt += p[N-1] / 2
+	out(cnt)
 }

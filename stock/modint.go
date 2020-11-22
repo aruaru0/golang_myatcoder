@@ -2,12 +2,16 @@
 // modint
 //----------------------------------------
 type modint struct {
-	mod int
+	mod       int
+	fracMemo  []int
+	ifracMemo []int
 }
 
 func newModint(m int) *modint {
 	var ret modint
 	ret.mod = m
+	ret.fracMemo = []int{1, 1}
+	ret.ifracMemo = []int{1, 1}
 	return &ret
 }
 
@@ -55,6 +59,49 @@ func (m *modint) pow(p, n int) int {
 	return ret
 }
 
+// 逆元を使った割り算（MOD）
+// mod. m での a の逆元 a^{-1} を計算する
+func (m *modint) modinv(a int) int {
+	b := m.mod
+	u := 1
+	v := 0
+	for b != 0 {
+		t := a / b
+		a -= t * b
+		a, b = b, a
+		u -= t * v
+		u, v = v, u
+	}
+	u %= m.mod
+	if u < 0 {
+		u += m.mod
+	}
+	return u
+}
+
+//-----------------------------------------------
+// 行列累乗
+// 　A[][]のp乗を求める
+//-----------------------------------------------
+func (m *modint) powModMatrix(A [][]int, p int) [][]int {
+	N := len(A)
+	ret := make([][]int, N)
+	for i := 0; i < N; i++ {
+		ret[i] = make([]int, N)
+		ret[i][i] = 1
+	}
+
+	for p > 0 {
+		if p&1 == 1 {
+			ret = m.mulMod(ret, A)
+		}
+		A = m.mulMod(A, A)
+		p >>= 1
+	}
+
+	return ret
+}
+
 func (m *modint) mulMod(A, B [][]int) [][]int {
 	H := len(A)
 	W := len(B[0])
@@ -76,42 +123,52 @@ func (m *modint) mulMod(A, B [][]int) [][]int {
 	return C
 }
 
-// A[][]のp乗を求める
-func (m *modint) powModMatrix(A [][]int, p int) [][]int {
-	N := len(A)
-	ret := make([][]int, N)
-	for i := 0; i < N; i++ {
-		ret[i] = make([]int, N)
-		ret[i][i] = 1
+//---------------------------------------------------
+// nCk 計算関連：　TELすることがあるかも
+//                ※pow(x, p-2)を何度も取るので
+// 厳しそうな場合は、ここを削除して高速なのを使う
+//---------------------------------------------------
+func (m *modint) mfrac(n int) int {
+	if len(m.fracMemo) > n {
+		return m.fracMemo[n]
 	}
-
-	for p > 0 {
-		if p&1 == 1 {
-			ret = m.mulMod(ret, A)
-		}
-		A = m.mulMod(A, A)
-		p >>= 1
+	if len(m.fracMemo) == 0 {
+		m.fracMemo = append(m.fracMemo, 1)
 	}
-
-	return ret
+	for len(m.fracMemo) <= n {
+		size := len(m.fracMemo)
+		m.fracMemo = append(m.fracMemo, m.fracMemo[size-1]*size%m.mod)
+	}
+	return m.fracMemo[n]
 }
 
-// 逆元を使った割り算（MOD）
-// mod. m での a の逆元 a^{-1} を計算する
-func (m *modint) modinv(a int) int {
-	b := m.mod
-	u := 1
-	v := 0
-	for b != 0 {
-		t := a / b
-		a -= t * b
-		a, b = b, a
-		u -= t * v
-		u, v = v, u
+func (m *modint) mifrac(n int) int {
+	if len(m.ifracMemo) > n {
+		return m.ifracMemo[n]
 	}
-	u %= m.mod
-	if u < 0 {
-		u += m.mod
+	if len(m.ifracMemo) == 0 {
+		m.fracMemo = append(m.ifracMemo, 1)
 	}
-	return u
+	for len(m.ifracMemo) <= n {
+		size := len(m.ifracMemo)
+		m.ifracMemo = append(m.ifracMemo, m.ifracMemo[size-1]*m.pow(size, m.mod-2)%m.mod)
+	}
+	return m.ifracMemo[n]
+}
+
+func (m *modint) nCr(n, r int) int {
+	if n == r {
+		return 1
+	}
+	if n < r || r < 0 {
+		return 0
+	}
+	ret := 1
+	ret *= m.mfrac(n)
+	ret %= m.mod
+	ret *= m.mifrac(r)
+	ret %= m.mod
+	ret *= m.mifrac(n - r)
+	ret %= m.mod
+	return (ret)
 }

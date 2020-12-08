@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"os"
 	"sort"
@@ -89,11 +90,80 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+//---------------------------------------------
+// priority queue
+//---------------------------------------------
+type pqi struct{ a, to int }
+
+type priorityQueue []pqi
+
+func (pq priorityQueue) Len() int            { return len(pq) }
+func (pq priorityQueue) Swap(i, j int)       { pq[i], pq[j] = pq[j], pq[i] }
+func (pq priorityQueue) Less(i, j int) bool  { return pq[i].a < pq[j].a }
+func (pq *priorityQueue) Push(x interface{}) { *pq = append(*pq, x.(pqi)) }
+func (pq *priorityQueue) Pop() interface{} {
+	x := (*pq)[len(*pq)-1]
+	*pq = (*pq)[0 : len(*pq)-1]
+	return x
+}
+
+type edge struct {
+	to, cost int
+}
+
+var node [][]edge
+var dist []int
+var used []bool
+
+func dijkstra(v int) {
+	pq := priorityQueue{}
+	dist[v] = 0
+	heap.Push(&pq, pqi{0, v})
+	for len(pq) != 0 {
+		cur := pq[0].to
+		heap.Pop(&pq)
+		if used[cur] {
+			continue
+		}
+		used[cur] = true
+		for _, e := range node[cur] {
+			if dist[e.to] > dist[cur]+e.cost {
+				dist[e.to] = dist[cur] + e.cost
+				heap.Push(&pq, pqi{dist[e.to], e.to})
+			}
+		}
+	}
+}
+
+const inf = int(1e18)
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, 1000000)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-
+	N, M := getI(), getI()
+	a := getInts(N)
+	tot := 0
+	for i := 0; i < N; i++ {
+		tot += a[i]
+	}
+	node = make([][]edge, N+1)
+	for i := 0; i < N; i++ {
+		to, from := i+1, i
+		node[from] = append(node[from], edge{to, a[i]})
+		node[to] = append(node[to], edge{from, 0})
+	}
+	for i := 0; i < M; i++ {
+		l, r, c := getI()-1, getI(), getI()
+		node[l] = append(node[l], edge{r, c})
+	}
+	dist = make([]int, N+1)
+	for i := 0; i <= N; i++ {
+		dist[i] = inf
+	}
+	used = make([]bool, N+1)
+	dijkstra(0)
+	out(tot - dist[N])
 }

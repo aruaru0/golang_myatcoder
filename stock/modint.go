@@ -61,10 +61,28 @@ func (m *modint) pow(p, n int) int {
 
 // 逆元を使った割り算（MOD）
 // mod. m での a の逆元 a^{-1} を計算する
-func (m *modint) modinv(a int) int {
-	b := m.mod
-	u := 1
-	v := 0
+// func (m *modint) modinv(a int) int {
+// 	b := m.mod
+// 	u := 1
+// 	v := 0
+// 	for b != 0 {
+// 		t := a / b
+// 		a -= t * b
+// 		a, b = b, a
+// 		u -= t * v
+// 		u, v = v, u
+// 	}
+// 	u %= m.mod
+// 	if u < 0 {
+// 		u += m.mod
+// 	}
+// 	return u
+// }
+
+// 拡張オイラーの互除法で逆元を求める
+func (mm *modint) modinv(a int) int {
+	m := mm.mod
+	b, u, v := m, 1, 0
 	for b != 0 {
 		t := a / b
 		a -= t * b
@@ -72,9 +90,9 @@ func (m *modint) modinv(a int) int {
 		u -= t * v
 		u, v = v, u
 	}
-	u %= m.mod
+	u %= m
 	if u < 0 {
-		u += m.mod
+		u += m
 	}
 	return u
 }

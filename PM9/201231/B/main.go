@@ -115,10 +115,29 @@ func main() {
 	// use getI(), getS(), getInts(), getF()
 	N := getI()
 	ans := 0
-	for i := 1; i*i <= N; i++ {
-		if i*i <= N {
-			ans = max(ans, i)
+	for i := 1; i <= N; i++ {
+		n := i
+		ok10 := true
+		for n > 0 {
+			if n%10 == 7 {
+				ok10 = false
+				break
+			}
+			n /= 10
+		}
+		n = i
+		ok8 := true
+		for n > 0 {
+			if n%8 == 7 {
+				ok8 = false
+				break
+			}
+			n /= 8
+		}
+		// out(ok10, ok8)
+		if ok10 && ok8 {
+			ans++
 		}
 	}
-	out(ans * ans)
+	out(ans)
 }

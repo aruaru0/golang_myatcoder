@@ -113,12 +113,6 @@ func main() {
 	sc.Buffer([]byte{}, 1000000)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N := getI()
-	ans := 0
-	for i := 1; i*i <= N; i++ {
-		if i*i <= N {
-			ans = max(ans, i)
-		}
-	}
-	out(ans * ans)
+	R, G := getI(), getI()
+	out(2*G - R)
 }

@@ -107,18 +107,64 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+var H, W, K int
+var c []string
+
+func check(h, w int) int {
+	b := make([][]int, H)
+	for i := 0; i < H; i++ {
+		b[i] = make([]int, W)
+	}
+
+	for i := 0; i < H; i++ {
+		if (h>>i)&1 == 1 {
+			for j := 0; j < W; j++ {
+				b[i][j] = 1
+			}
+		}
+	}
+
+	for i := 0; i < W; i++ {
+		if (w>>i)&1 == 1 {
+			for j := 0; j < H; j++ {
+				b[j][i] = 1
+			}
+		}
+	}
+
+	tot := 0
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			if b[i][j] == 0 && c[i][j] == '#' {
+				tot++
+			}
+		}
+	}
+	return tot
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, 1000000)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N := getI()
-	ans := 0
-	for i := 1; i*i <= N; i++ {
-		if i*i <= N {
-			ans = max(ans, i)
+	H, W, K = getI(), getI(), getI()
+	c = make([]string, H)
+	for i := 0; i < H; i++ {
+		c[i] = getS()
+	}
+
+	h := 1 << H
+	w := 1 << W
+	cnt := 0
+	for i := 0; i < h; i++ {
+		for j := 0; j < w; j++ {
+			ret := check(i, j)
+			if ret == K {
+				cnt++
+			}
 		}
 	}
-	out(ans * ans)
+	out(cnt)
 }

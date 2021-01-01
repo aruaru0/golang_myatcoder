@@ -113,12 +113,45 @@ func main() {
 	sc.Buffer([]byte{}, 1000000)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N := getI()
-	ans := 0
-	for i := 1; i*i <= N; i++ {
-		if i*i <= N {
-			ans = max(ans, i)
+	s := getS()
+	t := getS()
+
+	a := make([]int, len(s)+1)
+	for i := 0; i < len(s); i++ {
+		if s[i] == 'A' {
+			a[i+1] = 1
+		} else {
+			a[i+1] = 2
 		}
 	}
-	out(ans * ans)
+	b := make([]int, len(t)+1)
+	for i := 0; i < len(t); i++ {
+		if t[i] == 'A' {
+			b[i+1] = 1
+		} else {
+			b[i+1] = 2
+		}
+	}
+
+	for i := 1; i < len(a); i++ {
+		a[i] += a[i-1]
+	}
+	for i := 1; i < len(b); i++ {
+		b[i] += b[i-1]
+	}
+
+	q := getI()
+	for i := 0; i < q; i++ {
+		aa, bb, cc, dd := getI(), getI(), getI(), getI()
+		x := a[bb] - a[aa-1]
+		y := b[dd] - b[cc-1]
+		// out(x, y,
+		// 	"a", a[aa-1], a[bb], "b", b[cc-1], b[dd])
+		if x%3 == y%3 {
+			out("YES")
+		} else {
+			out("NO")
+		}
+	}
+	// out(a, b)
 }

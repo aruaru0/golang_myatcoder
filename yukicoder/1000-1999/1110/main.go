@@ -113,12 +113,15 @@ func main() {
 	sc.Buffer([]byte{}, 1000000)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N := getI()
-	ans := 0
-	for i := 1; i*i <= N; i++ {
-		if i*i <= N {
-			ans = max(ans, i)
-		}
+	N, D := getI(), getI()
+	a := getInts(N)
+	b := make([]int, N)
+	for i := 0; i < N; i++ {
+		b[i] = a[i] + D
 	}
-	out(ans * ans)
+	sort.Ints(b)
+	for i := 0; i < N; i++ {
+		x := upperBound(b, a[i])
+		out(x)
+	}
 }

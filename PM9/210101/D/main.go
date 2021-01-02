@@ -107,13 +107,6 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-type user struct {
-	score [27]int
-	total int
-	last  int
-	name  string
-}
-
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
@@ -121,40 +114,40 @@ func main() {
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
 	N := getI()
-	l := getInts(N)
-	a := make([]int, N)
-	T := getI()
-	player := make(map[string]user)
-	for i := 0; i < T; i++ {
-		name, p := getS(), getS()
-		num := int(p[0] - 'A')
+	S := []byte(getS())
+	T := []byte(getS())
 
-		a[num]++ // count anser
-		score := 50*l[num] + 500*l[num]/(8+2*a[num])
-		v, _ := player[name]
-		v.last = i
-		v.score[num] = score
-		v.total += score
-		v.name = name
-		player[name] = v
-	}
-
-	ans := make([]user, 0)
-	for _, e := range player {
-		ans = append(ans, e)
-	}
-	sort.Slice(ans, func(i, j int) bool {
-		if ans[i].total == ans[j].total {
-			return ans[i].last < ans[j].last
+	pos := make([]int, 0)
+	for i := 0; i < N; i++ {
+		if S[i] == '1' {
+			pos = append(pos, i)
 		}
-		return ans[i].total > ans[j].total
-	})
-
-	for i, e := range ans {
-		fmt.Fprint(wr, i+1, " ", e.name, " ")
-		for j := 0; j < N; j++ {
-			fmt.Fprint(wr, e.score[j], " ")
-		}
-		out(e.total)
 	}
+
+	ans := 0
+	for i := 0; i < N; i++ {
+		if S[i] == T[i] {
+			continue
+		}
+		for len(pos) > 0 && pos[0] <= i {
+			pos = pos[1:]
+		}
+		if len(pos) == 0 {
+			out(-1)
+			return
+		}
+		if S[i] == '0' {
+			ans += pos[0] - i
+			S[pos[0]] = '0'
+			S[i] = '1'
+			pos = pos[1:]
+		} else {
+			ans += pos[0] - i
+			S[pos[0]] = '0'
+			S[i] = '0'
+			pos = pos[1:]
+		}
+		// out(string(S))
+	}
+	out(ans)
 }

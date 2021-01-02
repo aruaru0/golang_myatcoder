@@ -107,11 +107,42 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-type user struct {
-	score [27]int
-	total int
-	last  int
-	name  string
+// NextPermutation generates the next permutation of the
+// sortable collection x in lexical order.  It returns false
+// if the permutations are exhausted.
+//
+// Knuth, Donald (2011), "Section 7.2.1.2: Generating All Permutations",
+// The Art of Computer Programming, volume 4A.
+// ※NextPermutationは辞書順で次を返す
+func NextPermutation(x sort.Interface) bool {
+	n := x.Len() - 1
+	if n < 1 {
+		return false
+	}
+	j := n - 1
+	for ; !x.Less(j, j+1); j-- {
+		if j == 0 {
+			return false
+		}
+	}
+	l := n
+	for !x.Less(j, l) {
+		l--
+	}
+	x.Swap(j, l)
+	for k, l := j+1, n; k < l; {
+		x.Swap(k, l)
+		k++
+		l--
+	}
+	return true
+}
+
+func gcd(a, b int) int {
+	if b == 0 {
+		return a
+	}
+	return gcd(b, a%b)
 }
 
 func main() {
@@ -120,41 +151,40 @@ func main() {
 	sc.Buffer([]byte{}, 1000000)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N := getI()
-	l := getInts(N)
-	a := make([]int, N)
-	T := getI()
-	player := make(map[string]user)
-	for i := 0; i < T; i++ {
-		name, p := getS(), getS()
-		num := int(p[0] - 'A')
+	N := getS()
 
-		a[num]++ // count anser
-		score := 50*l[num] + 500*l[num]/(8+2*a[num])
-		v, _ := player[name]
-		v.last = i
-		v.score[num] = score
-		v.total += score
-		v.name = name
-		player[name] = v
+	s := make(map[int]bool)
+	for i := 0; i < len(N); i++ {
+		v := int(N[i] - '0')
+		s[v] = true
 	}
 
-	ans := make([]user, 0)
-	for _, e := range player {
-		ans = append(ans, e)
+	d := 0
+	if len(s) == 1 {
+		out(N)
+		return
 	}
-	sort.Slice(ans, func(i, j int) bool {
-		if ans[i].total == ans[j].total {
-			return ans[i].last < ans[j].last
+
+	ans := 1
+	for a := range s {
+		for b := range s {
+			if a > b {
+				d = gcd(d, 9*(a-b))
+			}
 		}
-		return ans[i].total > ans[j].total
-	})
-
-	for i, e := range ans {
-		fmt.Fprint(wr, i+1, " ", e.name, " ")
-		for j := 0; j < N; j++ {
-			fmt.Fprint(wr, e.score[j], " ")
-		}
-		out(e.total)
 	}
+	for i := 2; i <= d; i++ {
+		if d%i == 0 { // iはdの約数である
+			dr, r := 1, 0
+			for _, c := range N {
+				v := int(c - '0')
+				r = (r + v*dr) % i
+				dr = (dr * 10) % i
+			}
+			if r == 0 {
+				ans = i
+			}
+		}
+	}
+	out(ans)
 }

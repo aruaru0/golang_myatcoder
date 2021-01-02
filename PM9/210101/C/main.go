@@ -107,11 +107,8 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-type user struct {
-	score [27]int
-	total int
-	last  int
-	name  string
+type num struct {
+	a [26]int
 }
 
 func main() {
@@ -121,40 +118,23 @@ func main() {
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
 	N := getI()
-	l := getInts(N)
-	a := make([]int, N)
-	T := getI()
-	player := make(map[string]user)
-	for i := 0; i < T; i++ {
-		name, p := getS(), getS()
-		num := int(p[0] - 'A')
-
-		a[num]++ // count anser
-		score := 50*l[num] + 500*l[num]/(8+2*a[num])
-		v, _ := player[name]
-		v.last = i
-		v.score[num] = score
-		v.total += score
-		v.name = name
-		player[name] = v
-	}
-
-	ans := make([]user, 0)
-	for _, e := range player {
-		ans = append(ans, e)
-	}
-	sort.Slice(ans, func(i, j int) bool {
-		if ans[i].total == ans[j].total {
-			return ans[i].last < ans[j].last
+	s := make([]string, N)
+	m := make(map[num]int)
+	for i := 0; i < N; i++ {
+		s[i] = getS()
+		var n num
+		for _, e := range s[i] {
+			v := int(e - 'a')
+			n.a[v]++
 		}
-		return ans[i].total > ans[j].total
-	})
-
-	for i, e := range ans {
-		fmt.Fprint(wr, i+1, " ", e.name, " ")
-		for j := 0; j < N; j++ {
-			fmt.Fprint(wr, e.score[j], " ")
-		}
-		out(e.total)
+		m[n]++
 	}
+
+	ans := 0
+	for _, e := range m {
+		if e > 1 {
+			ans += e * (e - 1) / 2
+		}
+	}
+	out(ans)
 }

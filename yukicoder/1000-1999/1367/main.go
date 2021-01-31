@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"regexp"
 	"sort"
 	"strconv"
 )
@@ -108,6 +109,10 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+func checkRegexp(reg, str string) bool {
+	return regexp.MustCompile(reg).Match([]byte(str))
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
@@ -115,9 +120,16 @@ func main() {
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
 	s := getS()
-	n := getI() - 1
-	a := n / 5
-	b := n % 5
 
-	out(string(s[a]) + string(s[b]))
+	// t := ".*"
+	// for i := 0; i < len(s); i++ {
+	// 	t += string(s[i]) + ".*"
+	// }
+	//ret := checkRegexp(t, "kadomatsu")
+	ret := checkRegexp("^k?a?d?o?m?a?t?s?u?$", s)
+	if ret {
+		out("Yes")
+		return
+	}
+	out("No")
 }

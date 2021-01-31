@@ -114,10 +114,53 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	s := getS()
-	n := getI() - 1
-	a := n / 5
-	b := n % 5
+	n := getI()
 
-	out(string(s[a]) + string(s[b]))
+	// 小さい時はコーナーケースを含めて全部試す
+	// 2がコーナーケースっぽい
+	if n < 100000 {
+		cnt := 0
+		for i := 2; i <= n; i++ {
+			x := n
+			for x%i == 0 {
+				x /= i
+			}
+			if x%i == 1 {
+				cnt++
+			}
+		}
+		out(cnt)
+		return
+	}
+
+	cnt := 2
+	// n-1の約数なら１残せる
+	for i := 2; i*i <= n; i++ {
+		x := n - 1
+		if x%i == 0 {
+			cnt++
+			if x/i != i {
+				cnt++
+			}
+		}
+	}
+	// nの約数の場合は、割って１あまりが作れるか調べる
+	for i := 2; i*i <= n; i++ {
+		x := n
+		if x%i == 0 {
+			for x%i == 0 {
+				x /= i
+			}
+			if x%i == 1 {
+				cnt++
+			}
+			if n/i != i {
+				y := n / i
+				if n%y == 1 {
+					cnt++
+				}
+			}
+		}
+	}
+	out(cnt)
 }

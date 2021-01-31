@@ -114,10 +114,11 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	s := getS()
-	n := getI() - 1
-	a := n / 5
-	b := n % 5
-
-	out(string(s[a]) + string(s[b]))
+	k := getF()
+	ans := 0.0
+	for i := 1; i < 100; i++ {
+		n := float64(i)
+		ans += math.Sin(k*n) / math.Pow(n, n)
+	}
+	out(ans)
 }

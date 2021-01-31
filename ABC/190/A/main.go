@@ -114,10 +114,23 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	s := getS()
-	n := getI() - 1
-	a := n / 5
-	b := n % 5
-
-	out(string(s[a]) + string(s[b]))
+	A, B := getI(), getI()
+	C := getI()
+	if C == 0 { // taka
+		if A <= B {
+			out("Aoki")
+			return
+		} else {
+			out("Takahashi")
+			return
+		}
+	} else { //ao
+		if A >= B {
+			out("Takahashi")
+			return
+		} else {
+			out("Aoki")
+			return
+		}
+	}
 }

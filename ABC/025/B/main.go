@@ -108,16 +108,40 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+func clip(x, a, b int) int {
+	if x < a {
+		return a
+	}
+	if x > b {
+		return b
+	}
+	return x
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	s := getS()
-	n := getI() - 1
-	a := n / 5
-	b := n % 5
-
-	out(string(s[a]) + string(s[b]))
+	N, A, B := getI(), getI(), getI()
+	pos := 0
+	for i := 0; i < N; i++ {
+		s, x := getS(), getI()
+		x = clip(x, A, B)
+		if s == "East" {
+			pos += x
+		} else {
+			pos -= x
+		}
+	}
+	if pos == 0 {
+		out(0)
+		return
+	}
+	if pos > 0 {
+		out("East", pos)
+	} else {
+		out("West", -pos)
+	}
 }

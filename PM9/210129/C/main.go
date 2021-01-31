@@ -115,9 +115,25 @@ func main() {
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
 	s := getS()
-	n := getI() - 1
-	a := n / 5
-	b := n % 5
 
-	out(string(s[a]) + string(s[b]))
+	if len(s) > len("AKIHABARA") {
+		out("NO")
+		return
+	}
+
+	for i := 0; i < 16; i++ {
+		t := []string{"KIH", "B", "R", ""}
+		x := ""
+		for j := 0; j < 4; j++ {
+			if (i>>j)&1 == 1 {
+				x += "A"
+			}
+			x += t[j]
+		}
+		if x == s {
+			out("YES")
+			return
+		}
+	}
+	out("NO")
 }

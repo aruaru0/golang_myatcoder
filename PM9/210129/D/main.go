@@ -114,10 +114,44 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	s := getS()
-	n := getI() - 1
-	a := n / 5
-	b := n % 5
+	N := getI()
+	a := make([]int, N+1)
+	for i := 1; i <= N; i++ {
+		a[i] = getI()
+	}
 
-	out(string(s[a]) + string(s[b]))
+	x := make([]int, N+1)
+	m := 0
+	for i := N; i > 0; i-- {
+		tot := 0
+		for j := i + i; j <= N; j += i {
+			tot += x[j]
+		}
+		// out(i, tot, a[i])
+		if tot%2 != 0 {
+			if a[i] == 0 {
+				x[i] = 1
+				m++
+			} else {
+				x[i] = 0
+			}
+		} else { // tot%2 == 0
+			if a[i] == 1 {
+				x[i] = 1
+				m++
+			} else {
+				x[i] = 0
+			}
+		}
+	}
+
+	out(m)
+	if m != 0 {
+		for i := 1; i <= N; i++ {
+			if x[i] == 1 {
+				fmt.Fprint(wr, i, " ")
+			}
+		}
+		out()
+	}
 }

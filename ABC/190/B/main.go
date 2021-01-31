@@ -114,10 +114,15 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	s := getS()
-	n := getI() - 1
-	a := n / 5
-	b := n % 5
+	N, S, D := getI(), getI(), getI()
 
-	out(string(s[a]) + string(s[b]))
+	for i := 0; i < N; i++ {
+		x, y := getI(), getI()
+		// out(x, y)
+		if S > x && D < y {
+			out("Yes")
+			return
+		}
+	}
+	out("No")
 }

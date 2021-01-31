@@ -108,16 +108,23 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+func solve() {
+	p := getI()
+	if p == 2 {
+		out(2)
+	} else {
+		out((p - 1) * (p - 1))
+	}
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	s := getS()
-	n := getI() - 1
-	a := n / 5
-	b := n % 5
-
-	out(string(s[a]) + string(s[b]))
+	N := getI()
+	for i := 0; i < N; i++ {
+		solve()
+	}
 }

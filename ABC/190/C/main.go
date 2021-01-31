@@ -114,10 +114,36 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	s := getS()
-	n := getI() - 1
-	a := n / 5
-	b := n % 5
-
-	out(string(s[a]) + string(s[b]))
+	N, M := getI(), getI()
+	a := make([]int, M)
+	b := make([]int, M)
+	for i := 0; i < M; i++ {
+		a[i], b[i] = getI()-1, getI()-1
+	}
+	K := getI()
+	c := make([]int, K)
+	d := make([]int, K)
+	for i := 0; i < K; i++ {
+		c[i], d[i] = getI()-1, getI()-1
+	}
+	k := 1 << K
+	ans := 0
+	for i := 0; i < k; i++ {
+		x := make([]int, N)
+		for j := 0; j < K; j++ {
+			if (i>>j)&1 == 1 {
+				x[c[j]]++
+			} else {
+				x[d[j]]++
+			}
+		}
+		cnt := 0
+		for j := 0; j < M; j++ {
+			if x[a[j]] != 0 && x[b[j]] != 0 {
+				cnt++
+			}
+		}
+		ans = max(ans, cnt)
+	}
+	out(ans)
 }

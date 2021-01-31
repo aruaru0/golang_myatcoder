@@ -115,9 +115,14 @@ func main() {
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
 	s := getS()
-	n := getI() - 1
-	a := n / 5
-	b := n % 5
-
-	out(string(s[a]) + string(s[b]))
+	x := 0
+	y := 0
+	for i := 0; i < len(s); i++ {
+		if s[i] == '0' {
+			x++
+		} else {
+			y++
+		}
+	}
+	out(min(x, y) * 2)
 }

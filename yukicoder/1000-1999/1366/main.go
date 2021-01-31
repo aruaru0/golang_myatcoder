@@ -108,16 +108,39 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+func check(a []int) bool {
+	if a[0] == a[1] || a[0] == a[2] || a[1] == a[2] {
+		return false
+	}
+	maxA := nmax(a[0], a[1], a[2])
+	minA := nmin(a[0], a[1], a[2])
+	if maxA == a[1] || minA == a[1] {
+		return true
+	}
+	return false
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	s := getS()
-	n := getI() - 1
-	a := n / 5
-	b := n % 5
+	a := getInts(3)
+	b := getInts(3)
 
-	out(string(s[a]) + string(s[b]))
+	x := make([]int, 3)
+	y := make([]int, 3)
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			copy(x, a)
+			copy(y, b)
+			x[i], y[j] = y[j], x[i]
+			if check(x) == true && check(y) == true {
+				out("Yes")
+				return
+			}
+		}
+	}
+	out("No")
 }

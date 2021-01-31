@@ -108,16 +108,42 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+const inf = int(1e18)
+
+var memo map[int]*int
+
+func rec(x, y int) int {
+	if x > y {
+		return x - y
+	}
+	if x == y {
+		return 0
+	}
+
+	if memo[y] != nil {
+		return *memo[y]
+	}
+
+	var ret int
+	if y%2 == 0 {
+		ret = rec(x, y/2) + 1
+	} else {
+		ret = rec(x, (y-1)/2) + 2
+		ret = min(ret, rec(x, (y+1)/2)+2)
+	}
+	ret = min(ret, y-x)
+
+	memo[y] = &ret
+	return ret
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	s := getS()
-	n := getI() - 1
-	a := n / 5
-	b := n % 5
-
-	out(string(s[a]) + string(s[b]))
+	X, Y := getI(), getI()
+	memo = make(map[int]*int)
+	out(rec(X, Y))
 }

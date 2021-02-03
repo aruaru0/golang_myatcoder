@@ -84,8 +84,7 @@ func main() {
 	}
 
 	l := 0
-	r 
-	:= 0
+	r := 0
 	m := 0
 	c := 0
 	for i := 0; i < N; i++ {

@@ -30,7 +30,7 @@ func getString() string {
 const mod = 1000000007
 
 var dp []int
-P
+
 // メモ化再帰バージョン
 func rec(i, N int, m []int) int {
 	if dp[i] != -1 {

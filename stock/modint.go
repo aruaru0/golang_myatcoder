@@ -3,15 +3,15 @@
 //----------------------------------------
 type modint struct {
 	mod       int
-	fracMemo  []int
-	ifracMemo []int
+	factMemo  []int
+	ifactMemo []int
 }
 
 func newModint(m int) *modint {
 	var ret modint
 	ret.mod = m
-	ret.fracMemo = []int{1, 1}
-	ret.ifracMemo = []int{1, 1}
+	ret.factMemo = []int{1, 1}
+	ret.ifactMemo = []int{1, 1}
 	return &ret
 }
 
@@ -146,32 +146,32 @@ func (m *modint) mulMod(A, B [][]int) [][]int {
 //                ※pow(x, p-2)を何度も取るので
 // 厳しそうな場合は、ここを削除して高速なのを使う
 //---------------------------------------------------
-func (m *modint) mfrac(n int) int {
-	if len(m.fracMemo) > n {
-		return m.fracMemo[n]
+func (m *modint) mfact(n int) int {
+	if len(m.factMemo) > n {
+		return m.factMemo[n]
 	}
-	if len(m.fracMemo) == 0 {
-		m.fracMemo = append(m.fracMemo, 1)
+	if len(m.factMemo) == 0 {
+		m.factMemo = append(m.factMemo, 1)
 	}
-	for len(m.fracMemo) <= n {
-		size := len(m.fracMemo)
-		m.fracMemo = append(m.fracMemo, m.fracMemo[size-1]*size%m.mod)
+	for len(m.factMemo) <= n {
+		size := len(m.factMemo)
+		m.factMemo = append(m.factMemo, m.factMemo[size-1]*size%m.mod)
 	}
-	return m.fracMemo[n]
+	return m.factMemo[n]
 }
 
-func (m *modint) mifrac(n int) int {
-	if len(m.ifracMemo) > n {
-		return m.ifracMemo[n]
+func (m *modint) mifact(n int) int {
+	if len(m.ifactMemo) > n {
+		return m.ifactMemo[n]
 	}
-	if len(m.ifracMemo) == 0 {
-		m.fracMemo = append(m.ifracMemo, 1)
+	if len(m.ifactMemo) == 0 {
+		m.factMemo = append(m.ifactMemo, 1)
 	}
-	for len(m.ifracMemo) <= n {
-		size := len(m.ifracMemo)
-		m.ifracMemo = append(m.ifracMemo, m.ifracMemo[size-1]*m.pow(size, m.mod-2)%m.mod)
+	for len(m.ifactMemo) <= n {
+		size := len(m.ifactMemo)
+		m.ifactMemo = append(m.ifactMemo, m.ifactMemo[size-1]*m.pow(size, m.mod-2)%m.mod)
 	}
-	return m.ifracMemo[n]
+	return m.ifactMemo[n]
 }
 
 func (m *modint) nCr(n, r int) int {
@@ -182,12 +182,11 @@ func (m *modint) nCr(n, r int) int {
 		return 0
 	}
 	ret := 1
-	ret *= m.mfrac(n)
+	ret *= m.mfact(n)
 	ret %= m.mod
-	ret *= m.mifrac(r)
+	ret *= m.mifact(r)
 	ret %= m.mod
-	ret *= m.mifrac(n - r)
+	ret *= m.mifact(n - r)
 	ret %= m.mod
 	return (ret)
 }
-

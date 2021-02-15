@@ -108,36 +108,49 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-const inf = int(1e18)
-
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	n, l := getI(), getI()
-	g := make([]int, l+5)
-	for i := 0; i < n; i++ {
-		x := getI()
-		g[x] = 1
+	H, W := getI(), getI()
+	N := getI()
+	a := getInts(N)
+
+	var f = func(y, x int) (int, int) {
+		if y%2 == 0 {
+			return y, x
+		}
+		return y, W - 1 - x
 	}
-	t := getInts(3)
-	dp := make([]int, l+5)
-	for i := 0; i < l+5; i++ {
-		dp[i] = inf
+
+	c := make([][]int, H)
+	for i := 0; i < H; i++ {
+		c[i] = make([]int, W)
 	}
-	dp[0] = 0
-	for i := 0; i < l; i++ {
-		dp[i+1] = min(dp[i+1], t[0]+dp[i]+g[i+1]*t[2])
-		dp[i+2] = min(dp[i+2], t[0]+t[1]+dp[i]+g[i+2]*t[2])
-		dp[i+4] = min(dp[i+4], t[0]+3*t[1]+dp[i]+g[i+4]*t[2])
+
+	idx := 0
+	cnt := a[idx]
+	for y := 0; y < H; y++ {
+		for x := 0; x < W; x++ {
+			yd, xd := f(y, x)
+			c[yd][xd] = idx + 1
+			cnt--
+			if cnt == 0 {
+				idx++
+				if idx == N {
+					break
+				}
+				cnt = a[idx]
+			}
+		}
 	}
-	ans := dp[l]
-	ans = min(ans, dp[l-1]+(t[0]+t[1])/2)
-	ans = min(ans, dp[l-2]+(t[0]/2+t[1]*3/2))
-	if l-3 >= 0 {
-		ans = min(ans, dp[l-3]+(t[0]/2+t[1]*5/2))
+
+	for y := 0; y < H; y++ {
+		for x := 0; x < W; x++ {
+			fmt.Fprint(wr, c[y][x], " ")
+		}
+		out()
 	}
-	out(ans)
 }

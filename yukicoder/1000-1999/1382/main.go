@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"math"
 	"os"
@@ -108,7 +109,19 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-const inf = int(1e18)
+type pqi struct{ a, to int }
+
+type priorityQueue []pqi
+
+func (pq priorityQueue) Len() int            { return len(pq) }
+func (pq priorityQueue) Swap(i, j int)       { pq[i], pq[j] = pq[j], pq[i] }
+func (pq priorityQueue) Less(i, j int) bool  { return pq[i].a < pq[j].a }
+func (pq *priorityQueue) Push(x interface{}) { *pq = append(*pq, x.(pqi)) }
+func (pq *priorityQueue) Pop() interface{} {
+	x := (*pq)[len(*pq)-1]
+	*pq = (*pq)[0 : len(*pq)-1]
+	return x
+}
 
 func main() {
 	defer wr.Flush()
@@ -116,28 +129,35 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	n, l := getI(), getI()
-	g := make([]int, l+5)
-	for i := 0; i < n; i++ {
-		x := getI()
-		g[x] = 1
+	N, M, S, _ := getI(), getI(), getI()-1, getI()-1
+	p := getInts(N)
+	node := make([][]int, N)
+	for i := 0; i < M; i++ {
+		a, b := getI()-1, getI()-1
+		node[a] = append(node[a], b)
+		node[b] = append(node[b], a)
 	}
-	t := getInts(3)
-	dp := make([]int, l+5)
-	for i := 0; i < l+5; i++ {
-		dp[i] = inf
+
+	used := make([]bool, N)
+	pq := priorityQueue{}
+	heap.Push(&pq, pqi{-p[S], S})
+	used[S] = true
+	x, y := p[S], 0
+	for len(pq) != 0 {
+		cur := pq[0]
+		heap.Pop(&pq)
+		pi := -cur.a
+		if pi < x {
+			x = pi
+			y++
+		}
+		for _, v := range node[cur.to] {
+			if used[v] {
+				continue
+			}
+			used[v] = true
+			heap.Push(&pq, pqi{-p[v], v})
+		}
 	}
-	dp[0] = 0
-	for i := 0; i < l; i++ {
-		dp[i+1] = min(dp[i+1], t[0]+dp[i]+g[i+1]*t[2])
-		dp[i+2] = min(dp[i+2], t[0]+t[1]+dp[i]+g[i+2]*t[2])
-		dp[i+4] = min(dp[i+4], t[0]+3*t[1]+dp[i]+g[i+4]*t[2])
-	}
-	ans := dp[l]
-	ans = min(ans, dp[l-1]+(t[0]+t[1])/2)
-	ans = min(ans, dp[l-2]+(t[0]/2+t[1]*3/2))
-	if l-3 >= 0 {
-		ans = min(ans, dp[l-3]+(t[0]/2+t[1]*5/2))
-	}
-	out(ans)
+	out(y)
 }

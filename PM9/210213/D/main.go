@@ -108,7 +108,23 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-const inf = int(1e18)
+func gcd(a, b int) int {
+	if b == 0 {
+		return a
+	}
+	return gcd(b, a%b)
+}
+
+func f(a, b int) {
+	if a < b {
+		a, b = b, a
+	}
+	if b == 0 {
+		return
+	}
+	out(a, b)
+	f(a-b, b)
+}
 
 func main() {
 	defer wr.Flush()
@@ -116,28 +132,20 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	n, l := getI(), getI()
-	g := make([]int, l+5)
-	for i := 0; i < n; i++ {
-		x := getI()
-		g[x] = 1
+	N, K := getI(), getI()
+	a := getInts(N)
+	m := a[0]
+	for i := 0; i < N; i++ {
+		m = max(m, a[i])
 	}
-	t := getInts(3)
-	dp := make([]int, l+5)
-	for i := 0; i < l+5; i++ {
-		dp[i] = inf
+
+	g := a[0]
+	for i := 1; i < N; i++ {
+		g = gcd(g, a[i])
 	}
-	dp[0] = 0
-	for i := 0; i < l; i++ {
-		dp[i+1] = min(dp[i+1], t[0]+dp[i]+g[i+1]*t[2])
-		dp[i+2] = min(dp[i+2], t[0]+t[1]+dp[i]+g[i+2]*t[2])
-		dp[i+4] = min(dp[i+4], t[0]+3*t[1]+dp[i]+g[i+4]*t[2])
+	if K <= m && K%g == 0 {
+		out("POSSIBLE")
+		return
 	}
-	ans := dp[l]
-	ans = min(ans, dp[l-1]+(t[0]+t[1])/2)
-	ans = min(ans, dp[l-2]+(t[0]/2+t[1]*3/2))
-	if l-3 >= 0 {
-		ans = min(ans, dp[l-3]+(t[0]/2+t[1]*5/2))
-	}
-	out(ans)
+	out("IMPOSSIBLE")
 }

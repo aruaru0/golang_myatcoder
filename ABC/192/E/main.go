@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"math"
 	"os"
@@ -108,10 +109,73 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+type pqi struct{ a, to int }
+
+type priorityQueue []pqi
+
+func (pq priorityQueue) Len() int            { return len(pq) }
+func (pq priorityQueue) Swap(i, j int)       { pq[i], pq[j] = pq[j], pq[i] }
+func (pq priorityQueue) Less(i, j int) bool  { return pq[i].a < pq[j].a }
+func (pq *priorityQueue) Push(x interface{}) { *pq = append(*pq, x.(pqi)) }
+func (pq *priorityQueue) Pop() interface{} {
+	x := (*pq)[len(*pq)-1]
+	*pq = (*pq)[0 : len(*pq)-1]
+	return x
+}
+
+var N, M, X, Y int
+var node [][]edge
+
+type edge struct {
+	to, t, k int
+}
+
+const inf = int(1e18)
+
+func dijkstra(s int) []int {
+	dist := make([]int, N)
+	for i := 0; i < N; i++ {
+		dist[i] = inf
+	}
+	pq := priorityQueue{}
+	heap.Push(&pq, pqi{0, s})
+	dist[s] = 0
+	for len(pq) != 0 {
+		c := pq[0]
+		heap.Pop(&pq)
+		if dist[c.to] < c.a {
+			continue
+		}
+		for _, e := range node[c.to] {
+			if dist[e.to] > dist[c.to]+e.t+(e.k-c.a%e.k)%e.k {
+				dist[e.to] = dist[c.to] + e.t + (e.k-c.a%e.k)%e.k
+				heap.Push(&pq, pqi{dist[e.to], e.to})
+			}
+		}
+	}
+	return dist
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	N, M, X, Y = getI(), getI(), getI()-1, getI()-1
+	node = make([][]edge, N)
+	for i := 0; i < M; i++ {
+		a, b, t, k := getI()-1, getI()-1, getI(), getI()
+		node[a] = append(node[a], edge{b, t, k})
+		node[b] = append(node[b], edge{a, t, k})
+	}
+
+	dist := dijkstra(X)
+	// out(dist)
+	ans := dist[Y]
+	if ans == inf {
+		out(-1)
+		return
+	}
+	out(dist[Y])
 }

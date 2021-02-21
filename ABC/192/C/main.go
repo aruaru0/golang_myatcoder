@@ -108,10 +108,39 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+func g(x int) (int, int) {
+	a := make([]int, 0)
+	for x > 0 {
+		a = append(a, x%10)
+		x /= 10
+	}
+	sort.Ints(a)
+	g1, g2 := 0, 0
+	for i := 0; i < len(a); i++ {
+		g1 = g1*10 + a[i]
+	}
+	for i := len(a) - 1; i >= 0; i-- {
+		g2 = g2*10 + a[i]
+	}
+	return g1, g2
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	N, K := getI(), getI()
+
+	a := N
+	for i := 0; i < K; i++ {
+		g0, g1 := g(a)
+		// out(N, g0, g1)
+		if a == g1-g0 {
+			break
+		}
+		a = g1 - g0
+	}
+	out(a)
 }

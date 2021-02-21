@@ -108,10 +108,43 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+const inf = int(math.MaxInt64)
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	N, X := getI(), getI()
+	A := getInts(N)
+
+	var dp [101][101][101]int
+	ans := inf
+	for k := 1; k < N+1; k++ {
+		for i := 0; i < N+1; i++ {
+			for use := 0; use < k+1; use++ {
+				for mo := 0; mo < k; mo++ {
+					dp[i][use][mo] = inf
+				}
+			}
+		}
+		dp[0][0][X%k] = X
+		for i := 0; i < N; i++ {
+			for use := 0; use < k+1; use++ {
+				for mo := 0; mo < k; mo++ {
+					if dp[i][use][mo] != inf {
+						dp[i+1][use][mo] = min(dp[i+1][use][mo], dp[i][use][mo])
+						if use < k {
+							dp[i+1][use+1][(((mo-A[i])%k)+k)%k] = min(dp[i+1][use+1][(((mo-A[i])%k)+k)%k], dp[i][use][mo]-A[i])
+						}
+					}
+				}
+			}
+		}
+		if dp[N][k][0] != inf {
+			ans = min(ans, dp[N][k][0]/k)
+		}
+	}
+	out(ans)
 }

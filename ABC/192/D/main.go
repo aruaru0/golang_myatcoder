@@ -108,10 +108,53 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+// kokoha ok
+func f(a []int, m int) int {
+	ret := 0
+	for _, x := range a {
+		if ret > int(1e18+1)/m {
+			return math.MaxInt64
+		}
+		ret = ret*m + x
+	}
+	return ret
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	X, M := getS(), getI()
+
+	a := make([]int, len(X))
+	d := 0
+	for i := 0; i < len(X); i++ {
+		a[i] = int(X[i] - '0')
+		d = max(d, a[i])
+	}
+
+	if len(X) == 1 {
+		if a[0] > M {
+			out(0)
+			return
+		}
+		out(1)
+		return
+	}
+
+	l := 1
+	r := int(1e18 + 1)
+	for l+1 != r {
+		m := (l + r) / 2
+		// out(l, r, m, f(a, m))
+		if f(a, m) > M {
+			r = m
+		} else {
+			l = m
+		}
+	}
+
+	out(max(0, l-d))
 }

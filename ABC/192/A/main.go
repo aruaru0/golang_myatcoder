@@ -114,6 +114,6 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	n := getI()
-	out(n)
+	x := getI()
+	out(100 - x%100)
 }

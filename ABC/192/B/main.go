@@ -114,4 +114,23 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	s := getS()
+	ok := true
+	for i := 0; i < len(s); i++ {
+		if i%2 == 0 {
+			if 'A' <= s[i] && s[i] <= 'Z' {
+				ok = false
+			}
+		} else {
+			if 'a' <= s[i] && s[i] <= 'z' {
+				ok = false
+			}
+		}
+	}
+
+	if ok {
+		out("Yes")
+		return
+	}
+	out("No")
 }

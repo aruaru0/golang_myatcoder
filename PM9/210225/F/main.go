@@ -108,8 +108,32 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-type pair struct {
-	dx, dy int
+func gcd(a, b int) int {
+	if b == 0 {
+		return a
+	}
+	return gcd(b, a%b)
+}
+
+func f() bool {
+	a, b, c, d := getI(), getI(), getI(), getI()
+	if b > a {
+		return false
+	}
+	if b > d {
+		return false
+	}
+	if c >= b {
+		return true
+	}
+
+	g := gcd(b, d)
+	x := b - g + a%g
+
+	if x > c {
+		return false
+	}
+	return true
 }
 
 func main() {
@@ -118,26 +142,12 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N := getI()
-	x := make([]int, N)
-	y := make([]int, N)
-	for i := 0; i < N; i++ {
-		x[i], y[i] = getI(), getI()
-	}
-
-	m := make(map[pair]int)
-	ma := 0
-	for i := 0; i < N; i++ {
-		for j := 0; j < N; j++ {
-			if i == j {
-				continue
-			}
-			dx := x[i] - x[j]
-			dy := y[i] - y[j]
-			m[pair{dx, dy}]++
-			ma = max(ma, m[pair{dx, dy}])
+	T := getI()
+	for i := 0; i < T; i++ {
+		if f() {
+			out("Yes")
+		} else {
+			out("No")
 		}
 	}
-	// out(m, ma)
-	out(N - ma)
 }

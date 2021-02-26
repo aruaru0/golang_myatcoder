@@ -108,10 +108,6 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-type pair struct {
-	dx, dy int
-}
-
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
@@ -119,25 +115,21 @@ func main() {
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
 	N := getI()
-	x := make([]int, N)
-	y := make([]int, N)
+	sum := 0
+	m := make(map[int]int)
 	for i := 0; i < N; i++ {
-		x[i], y[i] = getI(), getI()
+		a := getI()
+		sum += a
+		m[a]++
 	}
 
-	m := make(map[pair]int)
-	ma := 0
-	for i := 0; i < N; i++ {
-		for j := 0; j < N; j++ {
-			if i == j {
-				continue
-			}
-			dx := x[i] - x[j]
-			dy := y[i] - y[j]
-			m[pair{dx, dy}]++
-			ma = max(ma, m[pair{dx, dy}])
-		}
+	Q := getI()
+	for i := 0; i < Q; i++ {
+		b, c := getI(), getI()
+		sum -= m[b] * b
+		sum += m[b] * c
+		m[c] += m[b]
+		delete(m, b)
+		out(sum)
 	}
-	// out(m, ma)
-	out(N - ma)
 }

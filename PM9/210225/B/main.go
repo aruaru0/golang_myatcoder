@@ -108,10 +108,25 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+const inf = int(1e18)
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	N, T := getI(), getI()
+	ans := inf
+	for i := 0; i < N; i++ {
+		c, t := getI(), getI()
+		if t <= T {
+			ans = min(ans, c)
+		}
+	}
+	if ans == inf {
+		out("TLE")
+		return
+	}
+	out(ans)
 }

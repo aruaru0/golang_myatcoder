@@ -114,4 +114,9 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	a := getI()
+	B := getS()
+	B = B[:len(B)-3] + B[len(B)-2:]
+	b, _ := strconv.Atoi(B)
+	out(a * b / 100)
 }

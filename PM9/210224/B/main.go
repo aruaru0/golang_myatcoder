@@ -114,4 +114,18 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	x := getI()
+
+	notprime := make([]bool, 110000)
+	for i := 2; i*i < 110000; i++ {
+		for j := i * 2; j < 110000; j += i {
+			notprime[j] = true
+		}
+	}
+	for i := x; i < 110000; i++ {
+		if notprime[i] == false {
+			out(i)
+			return
+		}
+	}
 }

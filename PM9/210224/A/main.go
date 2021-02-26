@@ -114,4 +114,10 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	x := getI()
+	if x >= 30 {
+		out("Yes")
+		return
+	}
+	out("No")
 }

@@ -108,9 +108,7 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-type pair struct {
-	dx, dy int
-}
+const mod = int(1e9 + 7)
 
 func main() {
 	defer wr.Flush()
@@ -118,26 +116,30 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N := getI()
-	x := make([]int, N)
-	y := make([]int, N)
-	for i := 0; i < N; i++ {
-		x[i], y[i] = getI(), getI()
-	}
+	s := getS()
+	N := len(s)
 
-	m := make(map[pair]int)
-	ma := 0
+	dp := make([][13]int, N+1)
+	dp[0][0] = 1
 	for i := 0; i < N; i++ {
-		for j := 0; j < N; j++ {
-			if i == j {
-				continue
+		pos := i
+		if s[pos] == '?' {
+			for j := 0; j < 13; j++ {
+				for k := 0; k < 10; k++ {
+					dp[i+1][(j*10+k)%13] += dp[i][j]
+					dp[i+1][(j*10+k)%13] %= mod
+				}
 			}
-			dx := x[i] - x[j]
-			dy := y[i] - y[j]
-			m[pair{dx, dy}]++
-			ma = max(ma, m[pair{dx, dy}])
+		} else {
+			k := int(s[pos] - '0')
+			for j := 0; j < 13; j++ {
+				dp[i+1][(j*10+k)%13] += dp[i][j]
+				dp[i+1][(j*10+k)%13] %= mod
+			}
 		}
 	}
-	// out(m, ma)
-	out(N - ma)
+	// for i := 0; i <= N; i++ {
+	// 	out(dp[i])
+	// }
+	out(dp[N][5])
 }

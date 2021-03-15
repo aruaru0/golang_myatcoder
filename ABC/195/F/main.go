@@ -108,10 +108,72 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+func gcd(a, b int) int {
+	if b == 0 {
+		return a
+	}
+	return gcd(b, a%b)
+}
+
+var a []int
+
+type pair struct {
+	n   int
+	sel string
+}
+
+var memo map[pair]*int
+var tbl [][]bool
+
+func rec(n int, sel string) int {
+	if n == len(a) {
+		return 1
+	}
+	if memo[pair{n, sel}] != nil {
+		return *memo[pair{n, sel}]
+	}
+	ok := true
+	for i, e := range sel {
+		if e == 'o' {
+			if tbl[i][n] == false {
+				ok = false
+				break
+			}
+		}
+	}
+	ret := 0
+	if ok {
+		ret += rec(n+1, sel+"o")
+	}
+	ret += rec(n+1, sel+"-")
+	memo[pair{n, sel}] = &ret
+	return ret
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	A, B := getI(), getI()
+
+	a = make([]int, 0)
+	for i := A; i < B+1; i++ {
+		a = append(a, i)
+	}
+
+	n := len(a)
+	tbl = make([][]bool, n)
+	for i := 0; i < n; i++ {
+		tbl[i] = make([]bool, n)
+		for j := 0; j < n; j++ {
+			if gcd(a[i], a[j]) == 1 {
+				tbl[i][j] = true
+			}
+		}
+	}
+
+	memo = make(map[pair]*int)
+	out(rec(0, ""))
 }

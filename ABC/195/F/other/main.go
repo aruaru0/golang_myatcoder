@@ -108,7 +108,47 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-const n = 1 << 20
+func gcd(a, b int) int {
+	if b == 0 {
+		return a
+	}
+	return gcd(b, a%b)
+}
+
+var a []int
+
+type pair struct {
+	n   int
+	sel string
+}
+
+var memo map[pair]*int
+var tbl [][]bool
+
+func rec(n int, sel string) int {
+	if n == len(a) {
+		return 1
+	}
+	if memo[pair{n, sel}] != nil {
+		return *memo[pair{n, sel}]
+	}
+	ok := true
+	for i, e := range sel {
+		if e == 'o' {
+			if tbl[i][n] == false {
+				ok = false
+				break
+			}
+		}
+	}
+	ret := 0
+	if ok {
+		ret += rec(n+1, sel+"o")
+	}
+	ret += rec(n+1, sel+"-")
+	memo[pair{n, sel}] = &ret
+	return ret
+}
 
 func main() {
 	defer wr.Flush()
@@ -117,29 +157,23 @@ func main() {
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
 	A, B := getI(), getI()
-	N := B - A + 1
-	primes := [20]int{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71}
-	dp := make([][n]int, N+1)
-	dp[0][0] = 1
-	for x := A; x <= B; x++ {
-		i := x - A
-		pat := 0
-		for j := 0; j < len(primes); j++ {
-			if x%primes[j] == 0 {
-				pat |= 1 << j
-			}
-		}
-		for bit := 0; bit < n; bit++ {
-			dp[i+1][bit] += dp[i][bit]
-			if pat&bit == 0 {
-				dp[i+1][bit|pat] += dp[i][bit]
+
+	a = make([]int, 0)
+	for i := A; i < B+1; i++ {
+		a = append(a, i)
+	}
+
+	n := len(a)
+	tbl = make([][]bool, n)
+	for i := 0; i < n; i++ {
+		tbl[i] = make([]bool, n)
+		for j := 0; j < n; j++ {
+			if gcd(a[i], a[j]) == 1 {
+				tbl[i][j] = true
 			}
 		}
 	}
 
-	ans := 0
-	for bit := 0; bit < n; bit++ {
-		ans += dp[N][bit]
-	}
-	out(ans)
+	memo = make(map[pair]*int)
+	out(rec(0, ""))
 }

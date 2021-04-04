@@ -13,7 +13,6 @@ func out(x ...interface{}) {
 }
 
 var sc = bufio.NewScanner(os.Stdin)
-
 func getInt() int {
 	sc.Scan()
 	i, e := strconv.Atoi(sc.Text())

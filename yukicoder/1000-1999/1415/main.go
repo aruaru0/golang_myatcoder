@@ -3,19 +3,31 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"sort"
 	"strconv"
 )
 
+var sc = bufio.NewScanner(os.Stdin)
+var wr = bufio.NewWriter(os.Stdout)
+
 func out(x ...interface{}) {
-	fmt.Println(x...)
+	fmt.Fprintln(wr, x...)
 }
 
-var sc = bufio.NewScanner(os.Stdin)
-func getInt() int {
+func getI() int {
 	sc.Scan()
 	i, e := strconv.Atoi(sc.Text())
+	if e != nil {
+		panic(e)
+	}
+	return i
+}
+
+func getF() float64 {
+	sc.Scan()
+	i, e := strconv.ParseFloat(sc.Text(), 64)
 	if e != nil {
 		panic(e)
 	}
@@ -25,12 +37,12 @@ func getInt() int {
 func getInts(N int) []int {
 	ret := make([]int, N)
 	for i := 0; i < N; i++ {
-		ret[i] = getInt()
+		ret[i] = getI()
 	}
 	return ret
 }
 
-func getString() string {
+func getS() string {
 	sc.Scan()
 	return sc.Text()
 }
@@ -48,6 +60,40 @@ func min(a, b int) int {
 		return a
 	}
 	return b
+}
+
+// min for n entry
+func nmin(a ...int) int {
+	ret := a[0]
+	for _, e := range a {
+		ret = min(ret, e)
+	}
+	return ret
+}
+
+// max for n entry
+func nmax(a ...int) int {
+	ret := a[0]
+	for _, e := range a {
+		ret = max(ret, e)
+	}
+	return ret
+}
+
+func chmin(a *int, b int) bool {
+	if *a < b {
+		return false
+	}
+	*a = b
+	return true
+}
+
+func chmax(a *int, b int) bool {
+	if *a > b {
+		return false
+	}
+	*a = b
+	return true
 }
 
 func asub(a, b int) int {
@@ -79,26 +125,19 @@ func upperBound(a []int, x int) int {
 }
 
 func main() {
+	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
-	sc.Buffer([]byte{}, 1000000)
-	N, A, B := getInt(), getInt(), getInt()
-	if A == B {
-		if N%(A+1) == 0 {
-			out("Aoki")
-			return
-		}
-		out("Takahashi")
+	sc.Buffer([]byte{}, math.MaxInt32)
+	// this template is new version.
+	// use getI(), getS(), getInts(), getF()
+	N := getS()
+	if len(N) <= 2 {
+		out(0)
 		return
 	}
-
-	if N <= A {
-		out("Takahashi")
+	if N[0] == '-' {
+		out(0)
 		return
 	}
-
-	if A > B {
-		out("Takahashi")
-		return
-	}
-	out("Aoki")
+	out(N[:len(N)-2])
 }

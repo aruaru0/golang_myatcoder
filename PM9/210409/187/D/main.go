@@ -124,7 +124,9 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-const inf = int(1e15)
+type pair struct {
+	a, b int
+}
 
 func main() {
 	defer wr.Flush()
@@ -132,87 +134,27 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-
-	// 輪を見つけて、ループすると得ならループさせる
-	// 輪の部分で、最大になるところを見つける
-	// (1)輪の部分で最大　または、(2)ループして、あまりで最大を稼ぐ
-	// の最大が最大。部分最大の取り方を考えるのがポイント
-	N, K := getI(), getI()
-	p := make([]int, N)
+	N := getI()
+	p := make([]pair, N)
+	aoki := 0
 	for i := 0; i < N; i++ {
-		p[i] = getI() - 1
+		a, b := getI(), getI()
+		aoki += a
+		p[i] = pair{a, b}
 	}
-	c := getInts(N)
+	sort.Slice(p, func(i, j int) bool {
+		return p[i].a+p[i].b-p[j].a > p[j].a+p[j].b-p[i].a
+	})
 
-	route := make([][]int, 0)
-	used := make([]bool, N)
-	for i := 0; i < N; i++ {
-		if used[i] == true {
-			continue
-		}
-		r := []int{i}
-		next := p[i]
-		used[i] = true
-		for next != i {
-			r = append(r, next)
-			used[next] = true
-			next = p[next]
-		}
-		route = append(route, r)
-	}
-
-	tot := make([]int, len(route))
-	for i, e := range route {
-		tot[i] = 0
-		for _, v := range e {
-			tot[i] += c[v]
+	cnt := 0
+	tot := 0
+	for _, e := range p {
+		tot += e.a + e.b
+		aoki -= e.a
+		cnt++
+		if tot > aoki {
+			break
 		}
 	}
-	rmax := make([][]int, len(route))
-	for i, e := range route {
-		x := append(e, e...)
-		x = append(x, e...)
-		rmax[i] = make([]int, len(x)+1)
-		for j := 1; j <= len(x); j++ {
-			rmax[i][j] = -inf
-		}
-		for j := 0; j < len(x); j++ {
-			sum := c[x[j]]
-			cnt := 1
-			chmax(&rmax[i][cnt], sum)
-			for k := j + 1; k < len(x); k++ {
-				sum += c[x[k]]
-				cnt++
-				chmax(&rmax[i][cnt], sum)
-			}
-		}
-	}
-
-	ans := -inf
-	for i := 0; i < len(route); i++ {
-		// out(tot[i], rmax[i])
-
-		if tot[i] > 0 {
-			n := len(route[i])
-			// out(tot[i], n, "LOOP")
-			loop := max(0, K/n-1)
-			sum := max(0, tot[i]*loop)
-			// out(sum, K%n)
-			rest := 0
-			for j := 0; j <= K-loop*n; j++ {
-				rest = max(rest, rmax[i][j])
-			}
-			ans = max(ans, sum+rest)
-		} else {
-			n := min(K, len(rmax[i])-1)
-			rest := -inf
-			for j := 1; j <= n; j++ {
-				// out(n, rmax[i])
-				rest = max(rest, rmax[i][j])
-			}
-			// out(rest, "REST")
-			ans = max(ans, rest)
-		}
-	}
-	out(ans)
+	out(cnt)
 }

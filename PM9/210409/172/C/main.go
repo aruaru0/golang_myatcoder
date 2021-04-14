@@ -124,95 +124,47 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-const inf = int(1e15)
-
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	N, M, K := getI(), getI(), getI()
+	a := getInts(N)
+	b := getInts(M)
 
-	// 輪を見つけて、ループすると得ならループさせる
-	// 輪の部分で、最大になるところを見つける
-	// (1)輪の部分で最大　または、(2)ループして、あまりで最大を稼ぐ
-	// の最大が最大。部分最大の取り方を考えるのがポイント
-	N, K := getI(), getI()
-	p := make([]int, N)
+	sa := make([]int, N+1)
+	sb := make([]int, M+1)
 	for i := 0; i < N; i++ {
-		p[i] = getI() - 1
+		sa[i+1] = sa[i] + a[i]
 	}
-	c := getInts(N)
-
-	route := make([][]int, 0)
-	used := make([]bool, N)
-	for i := 0; i < N; i++ {
-		if used[i] == true {
-			continue
-		}
-		r := []int{i}
-		next := p[i]
-		used[i] = true
-		for next != i {
-			r = append(r, next)
-			used[next] = true
-			next = p[next]
-		}
-		route = append(route, r)
+	for i := 0; i < M; i++ {
+		sb[i+1] = sb[i] + b[i]
 	}
 
-	tot := make([]int, len(route))
-	for i, e := range route {
-		tot[i] = 0
-		for _, v := range e {
-			tot[i] += c[v]
+	sa = append(sa, 1e18)
+	sb = append(sb, 1e18)
+	ans := 0
+	for n := 0; n <= N; n++ {
+		m := K - sa[n]
+		if m < 0 {
+			break
 		}
-	}
-	rmax := make([][]int, len(route))
-	for i, e := range route {
-		x := append(e, e...)
-		x = append(x, e...)
-		rmax[i] = make([]int, len(x)+1)
-		for j := 1; j <= len(x); j++ {
-			rmax[i][j] = -inf
-		}
-		for j := 0; j < len(x); j++ {
-			sum := c[x[j]]
-			cnt := 1
-			chmax(&rmax[i][cnt], sum)
-			for k := j + 1; k < len(x); k++ {
-				sum += c[x[k]]
-				cnt++
-				chmax(&rmax[i][cnt], sum)
+		l := 0
+		r := len(sb)
+		for l+1 != r {
+			mid := (l + r) / 2
+			if sb[mid] > m {
+				r = mid
+			} else {
+				l = mid
 			}
 		}
+
+		// out(n, l, m)
+		ans = max(ans, n+l)
 	}
 
-	ans := -inf
-	for i := 0; i < len(route); i++ {
-		// out(tot[i], rmax[i])
-
-		if tot[i] > 0 {
-			n := len(route[i])
-			// out(tot[i], n, "LOOP")
-			loop := max(0, K/n-1)
-			sum := max(0, tot[i]*loop)
-			// out(sum, K%n)
-			rest := 0
-			for j := 0; j <= K-loop*n; j++ {
-				rest = max(rest, rmax[i][j])
-			}
-			ans = max(ans, sum+rest)
-		} else {
-			n := min(K, len(rmax[i])-1)
-			rest := -inf
-			for j := 1; j <= n; j++ {
-				// out(n, rmax[i])
-				rest = max(rest, rmax[i][j])
-			}
-			// out(rest, "REST")
-			ans = max(ans, rest)
-		}
-	}
 	out(ans)
 }

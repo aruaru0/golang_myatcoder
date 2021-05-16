@@ -125,24 +125,25 @@ func upperBound(a []int, x int) int {
 }
 
 type edge struct {
-	to  int
-	bit []int
+	to int
+	w  int
 }
 
 var N int
 var node [][]edge
+var dist []int
 
-func dfs(c, p, bit int) int {
-	ret := 0
-	x := make([]int, len(node[c]))
-	for i, e := range node[c] {
+func dfs(c, p, w int) {
+	dist[c] = w
+	for _, e := range node[c] {
 		if e.to == p {
 			continue
 		}
-		x[i] = dfs(e.to, c, bit)
+		dfs(e.to, c, w^e.w)
 	}
-	return ret
 }
+
+const mod = int(1e9 + 7)
 
 func main() {
 	defer wr.Flush()
@@ -153,15 +154,27 @@ func main() {
 	N = getI()
 	node = make([][]edge, N)
 	for i := 0; i < N-1; i++ {
-		u, v, w := getI(), getI(), getI()
-		b := make([]int, 60)
-		for i := 0; i < 60; i++ {
-			b[i] = (w >> i) % 2
-		}
-		node[u] = append(node[u], edge{v, b})
-		node[v] = append(node[v], edge{v, b})
+		u, v, w := getI()-1, getI()-1, getI()
+		node[u] = append(node[u], edge{v, w})
+		node[v] = append(node[v], edge{u, w})
 	}
 
+	dist = make([]int, N)
 	dfs(0, -1, 0)
 
+	ans := 0
+	x := 1
+	for i := 0; i < 60; i++ {
+		one := 0
+		for j := 0; j < N; j++ {
+			if (dist[j]>>i)&1 == 1 {
+				one++
+			}
+		}
+		ans += one * (N - one) % mod * x % mod
+		ans %= mod
+		x *= 2
+		x %= mod
+	}
+	out(ans)
 }

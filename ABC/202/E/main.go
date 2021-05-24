@@ -295,16 +295,19 @@ func (s *SegmentTree) compare(l, r Data) Data {
 
 func dfs(c, p, cnt int) {
 	dist[c] = cnt
+	route = append(route, c)
 	for _, e := range node[c] {
 		if e == p {
 			continue
 		}
 		dfs(e, c, cnt+1)
 	}
+	route = append(route, c)
 }
 
 var node [][]int
 var dist []int
+var route []int
 
 func main() {
 	defer wr.Flush()
@@ -322,34 +325,31 @@ func main() {
 		node[t] = append(node[t], f)
 	}
 
+	route = make([]int, 0)
 	dist = make([]int, N)
 	dfs(0, -1, 0)
-	// out(dist)
 
-	m := make(map[int][]int)
-	for i := 0; i < N; i++ {
-		m[dist[i]] = append(m[dist[i]], i)
+	inout := make([][]int, N)
+	depth := make(map[int][]int)
+	used := make([]bool, N)
+	for i, e := range route {
+		inout[e] = append(inout[e], i)
+		if !used[e] {
+			depth[dist[e]] = append(depth[dist[e]], i)
+			used[e] = true
+		}
 	}
-	// out(m)
-
-	l := newLCA(0, N, node)
-
+	// out(inout)
+	// out(depth)
 	Q := getI()
 	for i := 0; i < Q; i++ {
 		u, d := getI()-1, getI()
-		tot := 0
-		// out(d, u, dist[u])
-		for _, e := range m[d] {
-			if u == e {
-				tot++
-				continue
-			}
-			x := l.lca(u, e)
-			// out(u, e, "lca", x, x == u)
-			if x == u {
-				tot++
-			}
-		}
-		out(tot)
+		l, r := inout[u][0], inout[u][1]
+		// out("----")
+		// out(l, r, d)
+		x := lowerBound(depth[d], l)
+		y := lowerBound(depth[d], r)
+		// out(x, y)
+		out(y - x)
 	}
 }

@@ -124,55 +124,19 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-var N, K int
-var a [][]int
-
-func f(k int) bool {
-	b := make([][]int, N+1)
-	for i := 0; i <= N; i++ {
-		b[i] = make([]int, N+1)
+func f(i int) (int, int) {
+	x := i % W
+	y := i / W
+	if y%2 == 1 {
+		x = W - 1 - x
 	}
-	for i := 0; i < N; i++ {
-		for j := 0; j < N; j++ {
-			if a[i][j] <= k {
-				b[i+1][j+1] = 1
-			}
-		}
-	}
+	return x, y
+}
 
-	// out("---------------------")
-	// for i := 0; i <= N; i++ {
-	// 	out(b[i])
-	// }
+var H, W int
 
-	for i := 0; i <= N; i++ {
-		for j := 0; j < N; j++ {
-			b[i][j+1] += b[i][j]
-		}
-	}
-	for i := 0; i < N; i++ {
-		for j := 0; j <= N; j++ {
-			b[i+1][j] += b[i][j]
-		}
-	}
-
-	n := K*K - (K*K/2 + 1) + 1
-	// out("------", k, n)
-	// for i := 0; i <= N; i++ {
-	// 	out(b[i])
-	// }
-
-	for i := 0; i <= N-K; i++ {
-		for j := 0; j <= N-K; j++ {
-			tot := b[i+K][j+K] - b[i+K][j] - b[i][j+K] + b[i][j]
-			// out(tot)
-			if tot >= n {
-				return true
-			}
-		}
-	}
-
-	return false
+type pos struct {
+	x0, y0, x1, y1 int
 }
 
 func main() {
@@ -181,22 +145,26 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N, K = getI(), getI()
-	a = make([][]int, N)
-	for i := 0; i < N; i++ {
-		a[i] = getInts(N)
+	H, W = getI(), getI()
+	a := make([][]int, H)
+	for i := 0; i < H; i++ {
+		a[i] = getInts(W)
 	}
 
-	l, r := -1, int(1e9+1)
-	for l+1 != r {
-		m := (l + r) / 2
-		ret := f(m)
-		if ret {
-			r = m
-		} else {
-			l = m
+	ans := make([]pos, 0)
+	px, py := 0, 0
+	rest := a[0][0] % 2
+	for i := 1; i < H*W; i++ {
+		x, y := f(i)
+		if rest != 0 {
+			ans = append(ans, pos{px, py, x, y})
 		}
+		rest = (rest + a[y][x]) % 2
+		px, py = x, y
+	}
+	out(len(ans))
+	for _, e := range ans {
+		out(e.y0+1, e.x0+1, e.y1+1, e.x1+1)
 	}
 
-	out(r)
 }

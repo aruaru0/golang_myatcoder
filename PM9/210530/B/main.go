@@ -124,79 +124,24 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-var N, K int
-var a [][]int
-
-func f(k int) bool {
-	b := make([][]int, N+1)
-	for i := 0; i <= N; i++ {
-		b[i] = make([]int, N+1)
-	}
-	for i := 0; i < N; i++ {
-		for j := 0; j < N; j++ {
-			if a[i][j] <= k {
-				b[i+1][j+1] = 1
-			}
-		}
-	}
-
-	// out("---------------------")
-	// for i := 0; i <= N; i++ {
-	// 	out(b[i])
-	// }
-
-	for i := 0; i <= N; i++ {
-		for j := 0; j < N; j++ {
-			b[i][j+1] += b[i][j]
-		}
-	}
-	for i := 0; i < N; i++ {
-		for j := 0; j <= N; j++ {
-			b[i+1][j] += b[i][j]
-		}
-	}
-
-	n := K*K - (K*K/2 + 1) + 1
-	// out("------", k, n)
-	// for i := 0; i <= N; i++ {
-	// 	out(b[i])
-	// }
-
-	for i := 0; i <= N-K; i++ {
-		for j := 0; j <= N-K; j++ {
-			tot := b[i+K][j+K] - b[i+K][j] - b[i][j+K] + b[i][j]
-			// out(tot)
-			if tot >= n {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N, K = getI(), getI()
-	a = make([][]int, N)
-	for i := 0; i < N; i++ {
-		a[i] = getInts(N)
-	}
-
-	l, r := -1, int(1e9+1)
-	for l+1 != r {
-		m := (l + r) / 2
-		ret := f(m)
-		if ret {
-			r = m
-		} else {
-			l = m
+	s := getS()
+	ans := len(s)
+	for i := 0; i < 2; i++ {
+		t := i
+		cnt := 0
+		for j := 0; j < len(s); j++ {
+			if int(s[j]-'0') != t {
+				cnt++
+			}
+			t ^= 1
 		}
+		ans = min(ans, cnt)
 	}
-
-	out(r)
+	out(ans)
 }

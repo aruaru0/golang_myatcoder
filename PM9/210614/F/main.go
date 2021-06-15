@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"math"
 	"os"
@@ -124,65 +125,25 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-// 最大流を求めるプログラム　Ford-Fulkerson法
-type edge struct {
-	to, cap, rev int
+type pqi struct{ a, x, y int }
+
+type priorityQueue []pqi
+
+func (pq priorityQueue) Len() int            { return len(pq) }
+func (pq priorityQueue) Swap(i, j int)       { pq[i], pq[j] = pq[j], pq[i] }
+func (pq priorityQueue) Less(i, j int) bool  { return pq[i].a < pq[j].a }
+func (pq *priorityQueue) Push(x interface{}) { *pq = append(*pq, x.(pqi)) }
+func (pq *priorityQueue) Pop() interface{} {
+	x := (*pq)[len(*pq)-1]
+	*pq = (*pq)[0 : len(*pq)-1]
+	return x
 }
 
-type node struct {
-	to []edge
+type pos struct {
+	x, y int
 }
 
-// G :
-var G []node
-var used []bool
-var xN int
-
-// initG : グラフの初期化
-func initG(N int) {
-	G = make([]node, N)
-	xN = N
-}
-
-func addEdge(from, to, cap int) {
-	G[from].to = append(G[from].to, edge{to, cap, len(G[to].to)})
-	G[to].to = append(G[to].to, edge{from, 0, len(G[from].to) - 1})
-}
-
-func dfs(v, t, f int) int {
-	if v == t {
-		return f
-	}
-	used[v] = true
-	for i, e := range G[v].to {
-		if used[e.to] || e.cap <= 0 {
-			continue
-		}
-		d := dfs(e.to, t, min(f, e.cap))
-		if d > 0 {
-			G[v].to[i].cap -= d
-			G[e.to].to[e.rev].cap += d
-			return d
-		}
-	}
-	return 0
-}
-
-func fordFulkerson(s, t int) int {
-	N := xN
-	flow := 0
-	for {
-		used = make([]bool, N)
-		f := dfs(s, t, inf)
-		if f == 0 {
-			break
-		}
-		flow += f
-	}
-	return flow
-}
-
-const inf = int(1e10)
+const inf = int(1e18)
 
 func main() {
 	defer wr.Flush()
@@ -190,38 +151,61 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	H, W, N := getI(), getI(), getI()
-	A := make([]int, N)
-	B := make([]int, N)
-	C := make([]int, N)
-	D := make([]int, N)
-
-	for i := 0; i < N; i++ {
-		A[i], B[i], C[i], D[i] = getI()-1, getI()-1, getI()-1, getI()-1
-	}
-
-	n := H + W + N*2 + 2
-	initG(n)
-	start, end := 0, n-1
-	h, w := 1, 1+H
-	x, y := 1+H+W, 1+H+W+N
-
+	H, W, K := getI(), getI(), getI()
+	y1, x1 := getI()-1, getI()-1
+	y2, x2 := getI()-1, getI()-1
+	c := make([]string, H)
 	for i := 0; i < H; i++ {
-		addEdge(start, h+i, 1)
+		c[i] = getS()
 	}
-	for i := 0; i < W; i++ {
-		addEdge(w+i, end, 1)
-	}
-	for i := 0; i < N; i++ {
-		for j := A[i]; j <= C[i]; j++ {
-			addEdge(h+j, x+i, 1)
-		}
-		addEdge(x+i, y+i, 1)
-		for j := B[i]; j <= D[i]; j++ {
-			addEdge(y+i, w+j, 1)
+
+	dist := make([][]int, H)
+	for i := 0; i < H; i++ {
+		dist[i] = make([]int, W)
+		for j := 0; j < W; j++ {
+			dist[i][j] = inf
 		}
 	}
 
-	res := fordFulkerson(start, end)
-	out(res)
+	dx := []int{-1, 1, 0, 0}
+	dy := []int{0, 0, -1, 1}
+
+	pq := priorityQueue{}
+	heap.Push(&pq, pqi{0, x1, y1})
+	dist[y1][x1] = 0
+	for len(pq) != 0 {
+		cur := pq[0]
+		heap.Pop(&pq)
+		if dist[cur.y][cur.x] < cur.a {
+			continue
+		}
+		for i := 0; i < 4; i++ {
+			px := cur.x
+			py := cur.y
+			for k := 0; k < K; k++ {
+				px += dx[i]
+				py += dy[i]
+				if px < 0 || px >= W || py < 0 || py >= H {
+					break
+				}
+				if c[py][px] == '@' {
+					break
+				}
+				if dist[py][px] < dist[cur.y][cur.x]+1 {
+					break
+				}
+				if dist[py][px] > dist[cur.y][cur.x]+1 {
+					dist[py][px] = dist[cur.y][cur.x] + 1
+					heap.Push(&pq, pqi{dist[py][px], px, py})
+				}
+			}
+		}
+	}
+
+	ans := dist[y2][x2]
+	if ans == inf {
+		out(-1)
+		return
+	}
+	out(ans)
 }

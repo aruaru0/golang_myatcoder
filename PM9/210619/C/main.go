@@ -124,56 +124,44 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-func gcd(a, b int) int {
-	if b == 0 {
-		return a
-	}
-	return gcd(b, a%b)
-}
-
-func prime(n int) []int {
-	a := make([]bool, n+1)
-	for i := 2; i <= n; i++ {
-		for j := i * 2; j <= n; j += i {
-			a[j] = true
-		}
-	}
-	ret := make([]int, 0)
-	for i := 2; i <= n; i++ {
-		if a[i] == false {
-			ret = append(ret, i)
-		}
-	}
-	return ret
-}
-
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	L, R := getI(), getI()
-
-	ans := 0
-	f := make([]int, R+1)
-	for g := R; g >= 2; g-- {
-		// g倍の組み合わせ数をカウント
-		d := R/g - (L-1)/g
-		f[g] = d * d
-		// gの倍数を引く
-		for i := g * 2; i <= R; i += g {
-			f[g] -= f[i]
+	s := getS()
+	u := make([]bool, len(s)+1)
+	for i := 0; i < len(s)-1; i++ {
+		if s[i] == '>' && s[i+1] == '<' {
+			u[i+1] = true
 		}
-		ans += f[g]
 	}
+	if s[0] == '<' {
+		u[0] = true
+	}
+	if s[len(s)-1] == '>' {
+		u[len(s)] = true
+	}
+	// out(u)
 
-	// x = ay, y = ax
-	for i := L; i <= R; i++ {
-		if i == 1 {
-			continue
+	a := make([]int, len(u))
+	for i := 0; i < len(s); i++ {
+		if u[i] && s[i] == '<' {
+			u[i+1] = true
+			a[i+1] = a[i] + 1
 		}
-		ans -= R/i*2 - 1 //(x==yを２重カウントしている分をとる)
+	}
+	for i := len(s) - 1; i >= 0; i-- {
+		if u[i+1] && s[i] == '>' {
+			u[i] = true
+			a[i] = max(a[i], a[i+1]+1)
+		}
+	}
+	// out(a)
+	ans := 0
+	for i := 0; i < len(a); i++ {
+		ans += a[i]
 	}
 	out(ans)
 }

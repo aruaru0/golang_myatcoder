@@ -124,56 +124,18 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-func gcd(a, b int) int {
-	if b == 0 {
-		return a
-	}
-	return gcd(b, a%b)
-}
-
-func prime(n int) []int {
-	a := make([]bool, n+1)
-	for i := 2; i <= n; i++ {
-		for j := i * 2; j <= n; j += i {
-			a[j] = true
-		}
-	}
-	ret := make([]int, 0)
-	for i := 2; i <= n; i++ {
-		if a[i] == false {
-			ret = append(ret, i)
-		}
-	}
-	return ret
-}
-
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	L, R := getI(), getI()
-
-	ans := 0
-	f := make([]int, R+1)
-	for g := R; g >= 2; g-- {
-		// g倍の組み合わせ数をカウント
-		d := R/g - (L-1)/g
-		f[g] = d * d
-		// gの倍数を引く
-		for i := g * 2; i <= R; i += g {
-			f[g] -= f[i]
-		}
-		ans += f[g]
-	}
-
-	// x = ay, y = ax
-	for i := L; i <= R; i++ {
-		if i == 1 {
-			continue
-		}
-		ans -= R/i*2 - 1 //(x==yを２重カウントしている分をとる)
+	N, D, H := getI(), getF(), getF()
+	ans := 0.0
+	for i := 0; i < N; i++ {
+		d, h := getF(), getF()
+		b := H - (H-h)*D/(D-d)
+		ans = math.Max(ans, b)
 	}
 	out(ans)
 }

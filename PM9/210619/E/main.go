@@ -124,27 +124,38 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-func gcd(a, b int) int {
-	if b == 0 {
-		return a
-	}
-	return gcd(b, a%b)
-}
+var N, Z, W int
+var a []int
 
-func prime(n int) []int {
-	a := make([]bool, n+1)
-	for i := 2; i <= n; i++ {
-		for j := i * 2; j <= n; j += i {
-			a[j] = true
-		}
+const inf = int(1e18)
+
+var memo [2100][2]*int
+
+func rec(id, turn, x, y int) int {
+	if id == N {
+		return abs(x - y)
 	}
-	ret := make([]int, 0)
-	for i := 2; i <= n; i++ {
-		if a[i] == false {
-			ret = append(ret, i)
-		}
+
+	if memo[id][turn] != nil {
+		return *memo[id][turn]
 	}
-	return ret
+
+	if turn == 0 {
+		ma := -1
+		for i := id; i < N; i++ {
+			ma = max(ma, rec(i+1, 1, a[i], y))
+		}
+		memo[id][turn] = &ma
+		return ma
+	} else {
+		mi := inf
+		for i := id; i < N; i++ {
+			mi = min(mi, rec(i+1, 0, x, a[i]))
+		}
+		memo[id][turn] = &mi
+		return mi
+	}
+
 }
 
 func main() {
@@ -153,27 +164,8 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	L, R := getI(), getI()
+	N, Z, W = getI(), getI(), getI()
+	a = getInts(N)
 
-	ans := 0
-	f := make([]int, R+1)
-	for g := R; g >= 2; g-- {
-		// g倍の組み合わせ数をカウント
-		d := R/g - (L-1)/g
-		f[g] = d * d
-		// gの倍数を引く
-		for i := g * 2; i <= R; i += g {
-			f[g] -= f[i]
-		}
-		ans += f[g]
-	}
-
-	// x = ay, y = ax
-	for i := L; i <= R; i++ {
-		if i == 1 {
-			continue
-		}
-		ans -= R/i*2 - 1 //(x==yを２重カウントしている分をとる)
-	}
-	out(ans)
+	out(rec(0, 0, Z, W))
 }

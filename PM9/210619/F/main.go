@@ -124,27 +124,43 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-func gcd(a, b int) int {
-	if b == 0 {
-		return a
-	}
-	return gcd(b, a%b)
+type binaryIndexedTree []int
+
+func newBinaryIndexedTree(n int) *binaryIndexedTree {
+	bit := make(binaryIndexedTree, n+1)
+	return &bit
 }
 
-func prime(n int) []int {
-	a := make([]bool, n+1)
-	for i := 2; i <= n; i++ {
-		for j := i * 2; j <= n; j += i {
-			a[j] = true
+func (t binaryIndexedTree) Sum(i int) int {
+	s := 0
+	for i++; i > 0; i -= i & -i {
+		s += t[i]
+	}
+	return s
+}
+
+func (t binaryIndexedTree) RangeSum(l, r int) int {
+	return t.Sum(r-1) - t.Sum(l-1)
+}
+
+func (t binaryIndexedTree) Add(i, x int) {
+	for i++; i < len(t) && i > 0; i += i & -i {
+		t[i] += x
+	}
+}
+
+func (t binaryIndexedTree) LowerBound(x int) int {
+	idx, k := 0, 1
+	for k < len(t) {
+		k <<= 1
+	}
+	for k >>= 1; k > 0; k >>= 1 {
+		if idx+k < len(t) && t[idx+k] < x {
+			x -= t[idx+k]
+			idx += k
 		}
 	}
-	ret := make([]int, 0)
-	for i := 2; i <= n; i++ {
-		if a[i] == false {
-			ret = append(ret, i)
-		}
-	}
-	return ret
+	return idx
 }
 
 func main() {
@@ -153,27 +169,23 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	L, R := getI(), getI()
+	N := getI()
+	a := getInts(N)
 
-	ans := 0
-	f := make([]int, R+1)
-	for g := R; g >= 2; g-- {
-		// g倍の組み合わせ数をカウント
-		d := R/g - (L-1)/g
-		f[g] = d * d
-		// gの倍数を引く
-		for i := g * 2; i <= R; i += g {
-			f[g] -= f[i]
-		}
-		ans += f[g]
+	m := make(map[int]int)
+	for i := 0; i < N; i++ {
+		m[a[i]] = i + 1
 	}
 
-	// x = ay, y = ax
-	for i := L; i <= R; i++ {
-		if i == 1 {
-			continue
-		}
-		ans -= R/i*2 - 1 //(x==yを２重カウントしている分をとる)
+	bit := newBinaryIndexedTree(N + 1)
+	ans := 0
+	for i := 1; i <= N; i++ {
+		idx := m[i]
+		s := bit.Sum(idx)
+		l := bit.LowerBound(s)
+		r := bit.LowerBound(s + 1)
+		ans += (idx - l) * (r - idx) * i
+		bit.Add(idx, 1)
 	}
 	out(ans)
 }

@@ -124,10 +124,42 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+const mod = int(1e9 + 7)
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	N := getI()
+	a := getInts(N)
+	b := make([]int, N+1)
+	for i := 0; i < N; i++ {
+		b[i+1] = b[i] + a[i]
+	}
+
+	dp := make([][]int, N+1)
+	memo := make([][]int, N+1)
+	for i := 0; i < N+1; i++ {
+		dp[i] = make([]int, N+1)
+		memo[i] = make([]int, N+1)
+	}
+	dp[0][0] = 1
+	memo[1][0] = 1
+	for i := 0; i < N; i++ {
+		for j := 1; j < N+1; j++ {
+			dp[i+1][j] = memo[j][b[i+1]%j]
+		}
+		for j := 1; j < N+1; j++ {
+			memo[j][b[i+1]%j] += dp[i+1][j-1]
+			memo[j][b[i+1]%j] %= mod
+		}
+	}
+	tot := 0
+	for i := 0; i < N+1; i++ {
+		tot += dp[N][i]
+		tot %= mod
+	}
+	out(tot)
 }

@@ -124,91 +124,16 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-type BIT struct {
-	v []int
-}
-
-func newBIT(n int) *BIT {
-	b := new(BIT)
-	b.v = make([]int, n)
-	return b
-}
-func (b BIT) sum(a int) int {
-	ret := 0
-	for i := a + 1; i > 0; i -= i & -i {
-		ret += b.v[i-1]
-	}
-	return ret
-}
-func (b BIT) rangeSum(x, y int) int {
-	if y == 0 {
-		return 0
-	}
-	y--
-	if x == 0 {
-		return b.sum(y)
-	} else {
-		return b.sum(y) - b.sum(x-1)
-	}
-}
-func (b BIT) add(a, w int) {
-	n := len(b.v)
-	for i := a + 1; i <= n; i += i & -i {
-		b.v[i-1] += w
-	}
-}
-
-const inf = int(1e9 + 1)
-
-func f(a []int, b int) {
-	l, r := -inf, inf
-	ol, or := 0, 0
-	for l+2 < r {
-		// out(l, r)
-		m0 := (l + r) / 2
-		m1 := m0 + 1
-		tot0, tot1 := b, b
-		for _, e := range a {
-			tot0 += abs(e - m0)
-			tot1 += abs(e - m1)
-		}
-		// out(m0, m1, tot0, tot1)
-		if tot0 <= tot1 {
-			r = m1
-		} else {
-			l = m0
-		}
-		if l == ol && r == or {
-			break
-		}
-		ol, or = l, r
-	}
-	x := l + 1
-	tot := b
-	for _, e := range a {
-		tot += abs(e - x)
-	}
-	out(x, tot)
-}
-
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	Q := getI()
-
-	A := make([]int, 0)
-	B := 0
-	for i := 0; i < Q; i++ {
-		q := getI()
-		if q == 1 {
-			a, b := getI(), getI()
-			A = append(A, a)
-			B += b
-		} else {
-			f(A, B)
-		}
+	_, A, B := getI(), getI()-1, getI()-1
+	s := []byte(getS())
+	for i := 0; i <= (B-A)/2; i++ {
+		s[i+A], s[B-i] = s[B-i], s[i+A]
 	}
+	out(string(s))
 }

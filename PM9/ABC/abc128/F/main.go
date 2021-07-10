@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"container/heap"
 	"fmt"
 	"math"
 	"os"
@@ -125,99 +124,34 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-func lowerBoundPair(a []pair, x int) int {
-	idx := sort.Search(len(a), func(i int) bool {
-		return a[i].d >= x
-	})
-	return idx
-}
-
-func upperBoundPair(a []pair, x int) int {
-	idx := sort.Search(len(a), func(i int) bool {
-		return a[i].d > x
-	})
-	return idx
-}
-
-const inf = int(1e18)
-
-type pos struct {
-	s, t, x int
-}
-
-type pair struct {
-	d, i int
-	v    int
-}
-
-type pqi struct{ s, t, x int }
-
-type priorityQueue []pqi
-
-func (pq priorityQueue) Len() int            { return len(pq) }
-func (pq priorityQueue) Swap(i, j int)       { pq[i], pq[j] = pq[j], pq[i] }
-func (pq priorityQueue) Less(i, j int) bool  { return pq[i].x < pq[j].x }
-func (pq *priorityQueue) Push(x interface{}) { *pq = append(*pq, x.(pqi)) }
-func (pq *priorityQueue) Pop() interface{} {
-	x := (*pq)[len(*pq)-1]
-	*pq = (*pq)[0 : len(*pq)-1]
-	return x
-}
-
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N, Q := getI(), getI()
-
-	p := make([]pos, N)
-	for i := 0; i < N; i++ {
-		s, t, x := getI(), getI(), getI()
-		s -= x
-		t -= x
-		p[i] = pos{s, t, x}
-	}
-
-	sort.Slice(p, func(i, j int) bool {
-		return p[i].s < p[j].s
-	})
-
-	q := make([]pair, Q)
-	for i := 0; i < Q; i++ {
-		q[i] = pair{getI(), i, 0}
-	}
-	sort.Slice(q, func(i, j int) bool {
-		return q[i].d < q[j].d
-	})
-
-	pq := priorityQueue{}
-
-	for i := 0; i < Q; i++ {
-		cur := q[i].d
-		for len(pq) != 0 && pq[0].t <= cur {
-			heap.Pop(&pq)
+	N := getI()
+	s := getInts(N)
+	ans := 0
+	for c := 1; c < N; c++ {
+		tot := 0
+		used := make(map[int]bool)
+		for k := 0; ; k++ {
+			if k*c >= N {
+				break
+			}
+			A := N - 1 - k*c
+			B := A - c
+			if B <= 0 {
+				break
+			}
+			used[k*c] = true
+			if used[N-1-k*c] {
+				break
+			}
+			tot += s[k*c] + s[N-1-k*c]
+			chmax(&ans, tot)
 		}
-		for len(p) != 0 && p[0].s <= cur {
-			heap.Push(&pq, pqi{p[0].s, p[0].t, p[0].x})
-			p = p[1:]
-		}
-		for len(pq) != 0 && pq[0].t <= cur {
-			heap.Pop(&pq)
-		}
-		if len(pq) == 0 {
-			q[i].v = -1
-		} else {
-			q[i].v = pq[0].x
-		}
-		// out(cur, pq, q)
 	}
-	sort.Slice(q, func(i, j int) bool {
-		return q[i].i < q[j].i
-	})
-	for _, e := range q {
-		out(e.v)
-
-	}
+	out(ans)
 }

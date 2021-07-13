@@ -124,41 +124,20 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-var dist []int
-var used []bool
-var node [][]int
+const n = 52 * 52 * 52
 
-func dfs(c int) int {
-	used[c] = true
-	ret := 0
-	loop := false
-	for _, e := range node[c] {
-		if used[e] {
-			if dist[e] == -1 {
-				loop = true
-			}
-			continue
-		}
-		r := dfs(e)
-		if r != -1 {
-			ret |= dfs(e)
+func conv(s string) int {
+	tot := 0
+	for i := 0; i < 3; i++ {
+		var x int
+		if 'a' <= s[i] && s[i] <= 'z' {
+			x = int(s[i] - 'a')
 		} else {
-			loop = true
+			x = int(s[i]-'A') + 26
 		}
+		tot = tot*52 + x
 	}
-
-	if len(node[c]) == 0 {
-		ret = 1
-	} else if loop == true && ret == 0 {
-		dist[c] = -1
-		ret = -1
-	}
-
-	dist[c] = ret
-	if ret < 0 {
-		return ret
-	}
-	return ret ^ 1
+	return tot
 }
 
 func main() {
@@ -167,43 +146,83 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N := getI()
-	front := make(map[string][]int)
-	s := make([]string, N)
-	for i := 0; i < N; i++ {
-		s[i] = getS()
-		front[s[i][:3]] = append(front[s[i][:3]], i)
+	m := getI()
+
+	// 先頭と末尾の３文字を取得
+	sa := make([]string, m)
+	sb := make([]string, m)
+	for i := 0; i < m; i++ {
+		s := getS()
+		sa[i] = s[:3]
+		sb[i] = s[len(s)-3:]
 	}
-	node = make([][]int, N)
-	for i := 0; i < N; i++ {
-		t := s[i][len(s[i])-3:]
-		for _, e := range front[t] {
-			node[i] = append(node[i], e)
+	// マップに登録
+	mp := make(map[string]int)
+	for i := 0; i < m; i++ {
+		mp[sa[i]], mp[sb[i]] = 0, 0
+	}
+	// ノード番号を割り当てる
+	n := 0
+	for e := range mp {
+		mp[e] = n
+		n++
+	}
+	// グラフを生成
+	to := make([][]int, n)
+	deg := make([]int, n)
+	for i := 0; i < m; i++ {
+		a, b := mp[sa[i]], mp[sb[i]]
+		// しりとりを逆にたどるグラフを生成
+		to[b] = append(to[b], a)
+		deg[a]++
+	}
+
+	out(mp)
+	out(to)
+
+	q := make([]int, 0)
+	ans := make([]int, n)
+	// 末端の列を取得
+	for i := 0; i < n; i++ {
+		if deg[i] == 0 {
+			ans[i] = -1 // 末端はTakahashi
+			q = append(q, i)
 		}
 	}
 
-	dist = make([]int, N)
-	for i := 0; i < N; i++ {
-		dist[i] = -1
-	}
-	used = make([]bool, N)
-	for i := 0; i < N; i++ {
-		if used[i] {
-			continue
+	for len(q) != 0 {
+		v := q[0]
+		q = q[1:]
+		if ans[v] == -1 { // Takahashiの勝ちの場合
+			for _, u := range to[v] {
+				if ans[u] != 0 {
+					continue
+				}
+				ans[u] = 1 // 次のノードは青木の勝ち
+				q = append(q, u)
+			}
+		} else { // そうでない場合(0または１の場合)
+			for _, u := range to[v] {
+				if ans[u] != 0 {
+					continue
+				}
+				deg[u]--         // 接続数を減らす
+				if deg[u] == 0 { // 接続数が０になったら
+					ans[u] = -1
+					q = append(q, u)
+				}
+			}
 		}
-		dfs(i)
 	}
 
-	// out("dist", dist)
-	// out(s)
-	// out(front)
-	// out(node)
-	for i := 0; i < N; i++ {
-		if dist[i] < 0 {
-			out("Draw")
-		} else if dist[i] == 1 {
+	for i := 0; i < m; i++ {
+		b := mp[sb[i]]
+		switch ans[b] {
+		case -1:
 			out("Takahashi")
-		} else {
+		case 0:
+			out("Draw")
+		case 1:
 			out("Aoki")
 		}
 	}

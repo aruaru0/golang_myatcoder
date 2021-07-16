@@ -124,6 +124,35 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+const size = 220000
+const offset = 110000
+
+func dfs(v int) (int, int) {
+	if used[v] {
+		return 0, 0
+	}
+	used[v] = true
+	x, y := 0, 0
+	if v < offset {
+		x++
+	} else {
+		y++
+	}
+	for _, e := range node[v] {
+		if used[e] {
+			continue
+		}
+		a, b := dfs(e)
+		x += a
+		y += b
+	}
+
+	return x, y
+}
+
+var node [][]int
+var used []bool
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
@@ -131,13 +160,20 @@ func main() {
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
 	N := getI()
-	x := make(map[int][]int)
-	y := make(map[int][]int)
+	node = make([][]int, size)
 	for i := 0; i < N; i++ {
-		a, b := getI(), getI()
-		x[a] = append(x[a], b)
-		y[b] = append(y[b], a)
+		a, b := getI()-1, offset+getI()-1
+		node[a] = append(node[a], b)
+		node[b] = append(node[b], a)
 	}
 
-	out(x, y)
+	used = make([]bool, size)
+	ans := 0
+	for i := 0; i < size; i++ {
+		if !used[i] {
+			x, y := dfs(i)
+			ans += x * y
+		}
+	}
+	out(ans - N)
 }

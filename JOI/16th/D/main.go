@@ -124,16 +124,7 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-func gcd(a, b int) int {
-	if b == 0 {
-		return a
-	}
-	return gcd(b, a%b)
-}
-
-type pair struct {
-	a, c int
-}
+const inf = int(1e18)
 
 func main() {
 	defer wr.Flush()
@@ -142,25 +133,49 @@ func main() {
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
 	N, M := getI(), getI()
-	p := make([]pair, M)
+	a := make([]int, N)
+	for i := 0; i < N; i++ {
+		a[i] = getI() - 1
+	}
+	b := make([][]int, M)
 	for i := 0; i < M; i++ {
-		a, c := getI(), getI()
-		p[i] = pair{a, c}
+		b[i] = make([]int, N+1)
 	}
-	sort.Slice(p, func(i, j int) bool {
-		return p[i].c < p[j].c
-	})
+	for i := 0; i < N; i++ {
+		b[a[i]][i+1]++
+	}
+	tot := make([]int, M)
+	for i := 0; i < M; i++ {
+		for j := 0; j < N; j++ {
+			b[i][j+1] += b[i][j]
+		}
+		tot[i] = b[i][N]
+	}
+	n := 1 << M
+	dp := make([]int, n)
+	for i := 0; i < n; i++ {
+		dp[i] = inf
+	}
+	dp[0] = 0
+	for bit := 0; bit < n; bit++ {
+		for i := 0; i < M; i++ {
+			if (bit>>i)%2 == 1 {
+				continue
+			}
+			// 総数をカウント
+			sum := 0
+			for j := 0; j < M; j++ {
+				if (bit>>j)%2 == 1 {
+					sum += tot[j]
+				}
+			}
+			l, r := sum, sum+tot[i]
+			// fmt.Fprintf(wr, "%b\n", bit)
+			change := tot[i] - (b[i][r] - b[i][l])
+			// out(tot[i], l, r, b[i][r], b[i][l], change)
+			dp[bit|(1<<i)] = min(dp[bit|(1<<i)], dp[bit]+change)
+		}
+	}
 
-	cur := N
-	ans := 0
-	for _, e := range p {
-		a, c := e.a, e.c
-		ans += (cur - gcd(cur, a)) * c
-		cur = gcd(cur, a)
-	}
-	if cur > 1 {
-		out(-1)
-	} else {
-		out(ans)
-	}
+	out(dp[n-1])
 }

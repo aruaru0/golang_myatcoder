@@ -124,7 +124,16 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-const mod = int(1e9 + 7)
+func gcd(a, b int) int {
+	if b == 0 {
+		return a
+	}
+	return gcd(b, a%b)
+}
+
+func lcm(a, b int) int {
+	return a / gcd(a, b) * b
+}
 
 func main() {
 	defer wr.Flush()
@@ -132,41 +141,14 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N, K := getI(), getI()
+	K := getI()
+	X, Y := getI(), getI()
 
-	var dp [51][51][3100]int
-	dp[0][0][0] = 1
-	for i := 0; i < N; i++ {
-		for rest := 0; rest < N; rest++ {
-			for k := 0; k <= K; k++ {
-				// どちらの順列のi + 1番目も使わない
-				dp[i+1][rest+1][k+2*rest+2] += dp[i][rest][k]
-				dp[i+1][rest+1][k+2*rest+2] %= mod
-
-				// 順列Aのi + 1番目と、順列Bの残りとマッチングさせる
-				if rest != 0 {
-					dp[i+1][rest][k+2*rest] += dp[i][rest][k] * rest
-					dp[i+1][rest][k+2*rest] %= mod
-				}
-
-				// 順列Bのi + 1番目と、順列Aの残りとマッチングさせる
-				if rest != 0 {
-					dp[i+1][rest][k+2*rest] += dp[i][rest][k] * rest
-					dp[i+1][rest][k+2*rest] %= mod
-				}
-
-				// 順列Aのi + 1番目と、順列Bのi + 1番目とマッチングさせる
-				dp[i+1][rest][k+2*rest] += dp[i][rest][k]
-				dp[i+1][rest][k+2*rest] %= mod
-
-				// 順列Aのi + 1番目と順列Bの残り、順列Bのi + 1番目と順列Aの残りとマッチングさせる
-				if rest != 0 {
-					dp[i+1][rest-1][k+2*rest-2] += dp[i][rest][k] * rest * rest
-					dp[i+1][rest-1][k+2*rest-2] %= mod
-				}
-
-			}
-		}
+	diff := abs(X + Y)
+	if diff%2 != K%2 {
+		out(-1)
+		return
 	}
-	out(dp[N][0][K])
+	l := lcm(diff, K)
+	out(l, l/K)
 }

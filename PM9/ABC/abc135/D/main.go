@@ -132,41 +132,26 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N, K := getI(), getI()
+	s := getS()
+	N := len(s)
+	dp := make([][13]int, N+1)
 
-	var dp [51][51][3100]int
-	dp[0][0][0] = 1
+	dp[0][0] = 1
 	for i := 0; i < N; i++ {
-		for rest := 0; rest < N; rest++ {
-			for k := 0; k <= K; k++ {
-				// どちらの順列のi + 1番目も使わない
-				dp[i+1][rest+1][k+2*rest+2] += dp[i][rest][k]
-				dp[i+1][rest+1][k+2*rest+2] %= mod
-
-				// 順列Aのi + 1番目と、順列Bの残りとマッチングさせる
-				if rest != 0 {
-					dp[i+1][rest][k+2*rest] += dp[i][rest][k] * rest
-					dp[i+1][rest][k+2*rest] %= mod
-				}
-
-				// 順列Bのi + 1番目と、順列Aの残りとマッチングさせる
-				if rest != 0 {
-					dp[i+1][rest][k+2*rest] += dp[i][rest][k] * rest
-					dp[i+1][rest][k+2*rest] %= mod
-				}
-
-				// 順列Aのi + 1番目と、順列Bのi + 1番目とマッチングさせる
-				dp[i+1][rest][k+2*rest] += dp[i][rest][k]
-				dp[i+1][rest][k+2*rest] %= mod
-
-				// 順列Aのi + 1番目と順列Bの残り、順列Bのi + 1番目と順列Aの残りとマッチングさせる
-				if rest != 0 {
-					dp[i+1][rest-1][k+2*rest-2] += dp[i][rest][k] * rest * rest
-					dp[i+1][rest-1][k+2*rest-2] %= mod
-				}
-
+		from := int(s[i] - '0')
+		to := from
+		if s[i] == '?' {
+			from, to = 0, 9
+		}
+		for k := from; k <= to; k++ {
+			for j := 0; j < 13; j++ {
+				mm := (j*10 + k) % 13
+				dp[i+1][mm] += dp[i][j]
+				dp[i+1][mm] %= mod
 			}
 		}
+		// out(from, to, dp[i+1])
 	}
-	out(dp[N][0][K])
+
+	out(dp[N][5])
 }

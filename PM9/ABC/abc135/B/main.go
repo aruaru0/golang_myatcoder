@@ -124,49 +124,26 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-const mod = int(1e9 + 7)
-
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N, K := getI(), getI()
-
-	var dp [51][51][3100]int
-	dp[0][0][0] = 1
+	N := getI()
+	p := getInts(N)
+	q := make([]int, N)
+	copy(q, p)
+	sort.Ints(q)
+	cnt := 0
 	for i := 0; i < N; i++ {
-		for rest := 0; rest < N; rest++ {
-			for k := 0; k <= K; k++ {
-				// どちらの順列のi + 1番目も使わない
-				dp[i+1][rest+1][k+2*rest+2] += dp[i][rest][k]
-				dp[i+1][rest+1][k+2*rest+2] %= mod
-
-				// 順列Aのi + 1番目と、順列Bの残りとマッチングさせる
-				if rest != 0 {
-					dp[i+1][rest][k+2*rest] += dp[i][rest][k] * rest
-					dp[i+1][rest][k+2*rest] %= mod
-				}
-
-				// 順列Bのi + 1番目と、順列Aの残りとマッチングさせる
-				if rest != 0 {
-					dp[i+1][rest][k+2*rest] += dp[i][rest][k] * rest
-					dp[i+1][rest][k+2*rest] %= mod
-				}
-
-				// 順列Aのi + 1番目と、順列Bのi + 1番目とマッチングさせる
-				dp[i+1][rest][k+2*rest] += dp[i][rest][k]
-				dp[i+1][rest][k+2*rest] %= mod
-
-				// 順列Aのi + 1番目と順列Bの残り、順列Bのi + 1番目と順列Aの残りとマッチングさせる
-				if rest != 0 {
-					dp[i+1][rest-1][k+2*rest-2] += dp[i][rest][k] * rest * rest
-					dp[i+1][rest-1][k+2*rest-2] %= mod
-				}
-
-			}
+		if q[i] != p[i] {
+			cnt++
 		}
 	}
-	out(dp[N][0][K])
+	if cnt <= 2 {
+		out("YES")
+	} else {
+		out("NO")
+	}
 }

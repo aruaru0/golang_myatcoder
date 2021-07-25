@@ -135,6 +135,57 @@ func lcm(a, b int) int {
 	return a / gcd(a, b) * b
 }
 
+func calc2(X, Y, K int) [][2]int {
+	// X , Y >= 0,  X > Y
+	if (X+Y)%2 == 1 && K%2 == 0 {
+		return nil
+	}
+	n := (X + Y + K - 1) / K
+
+	if X+Y == K {
+		return [][2]int{{X, Y}}
+	}
+	if n <= 1 {
+		n = 2
+	}
+
+	if (X+Y)%2 != n*K%2 {
+		n++
+	}
+	ans := make([][2]int, n)
+	if n == 3 && X < K {
+		ans = make([][2]int, 3)
+		ans[0][0] = X
+		ans[0][1] = -K + X
+
+		overRight := (K + X - Y) / 2
+
+		ans[1][0] = X + overRight
+		ans[1][1] = Y - (K - overRight)
+
+		ans[2][0] = X
+		ans[2][1] = Y
+		return ans
+	} else {
+		over := (K*n - (X + Y)) / 2
+
+		for i := 0; i < n; i++ {
+			dist := (i + 1) * K
+			if dist <= Y+over {
+				ans[i][0] = 0
+				ans[i][1] = dist
+			} else if dist <= Y+over+X {
+				ans[i][0] = dist - Y - over
+				ans[i][1] = Y + over
+			} else {
+				ans[i][0] = X
+				ans[i][1] = Y + ((n - (i + 1)) * K)
+			}
+		}
+	}
+	return ans
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
@@ -144,11 +195,46 @@ func main() {
 	K := getI()
 	X, Y := getI(), getI()
 
-	diff := abs(X + Y)
-	if diff%2 != K%2 {
+	signX, signY := false, false
+	swap := false
+	if X < 0 {
+		signX = true
+		X = -X
+	}
+	if Y < 0 {
+		signY = true
+		Y = -Y
+	}
+	if X < Y {
+		X, Y = Y, X
+		swap = true
+	}
+
+	ans := calc2(X, Y, K)
+
+	if ans == nil {
 		out(-1)
 		return
 	}
-	l := lcm(diff, K)
-	out(l, l/K)
+	if swap {
+		for i := 0; i < len(ans); i++ {
+			ans[i][0], ans[i][1] = ans[i][1], ans[i][0]
+		}
+	}
+	if signX {
+		for i := 0; i < len(ans); i++ {
+			ans[i][0] = -ans[i][0]
+		}
+	}
+	if signY {
+		for i := 0; i < len(ans); i++ {
+			ans[i][1] = -ans[i][1]
+		}
+	}
+
+	out(len(ans))
+	for _, e := range ans {
+		out(e[0], e[1])
+	}
+
 }

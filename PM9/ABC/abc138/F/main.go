@@ -124,22 +124,7 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-func f(n int) {
-	s := strconv.FormatInt(int64(n), 2)
-	out(s)
-	N := len(s)
-	dp := make([][2][2]int, N+1)
-
-	dp[0][0][1] = 1
-	for i := 0; i < N; i++ {
-		d := int(s[i] - '0')
-
-		dp[i+1][1][0] = 2*(dp[i][1][0]) + dp[i][1][1] + dp[i][0][0]
-		dp[i+1][1][1] = dp[i][1][0] + dp[i][1][1] + dp[i][0][1]
-		dp[i+1][0][d] = 1
-		out(dp[i+1])
-	}
-}
+const mod = int(1e9 + 7)
 
 func main() {
 	defer wr.Flush()
@@ -148,16 +133,80 @@ func main() {
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
 
-	/*
-		for i := 1; i < 100; i++ {
-			for j := i; j < 100; j++ {
-				if j%i == j^i {
-					fmt.Fprintf(wr, "%b %b %d %d\n", i, 99, i, j)
-				}
-			}
-		}*/
 	L, R := getI(), getI()
 
-	f(L - 1)
-	f(R)
+	var dp [64][2][2]int
+
+	nr, nl := 0, 0
+	for i := 0; i < 63; i++ {
+		if R&(1<<i) != 0 {
+			nr = i
+		}
+		if L&(1<<i) != 0 {
+			nl = i
+		}
+	}
+	flagR := func(i int) bool {
+		return R&(1<<i) != 0
+	}
+	flagL := func(i int) bool {
+		return L&(1<<i) != 0
+	}
+
+	for i := nr; i >= 0; i-- {
+		if nl <= i {
+			x, y := 0, 0
+			if i != nr {
+				y = 1
+			}
+			if i != nl {
+				x = 1
+			}
+			dp[i][y][x] += 1
+		}
+		if i == 0 {
+			continue
+		}
+		for y := 0; y < 2; y++ {
+			for x := 0; x < 2; x++ {
+				for a := 0; a < 2; a++ {
+					for b := 0; b < 2; b++ {
+						if a < b {
+							continue
+						}
+						ny := 1
+						nx := 1
+						if a == 1 && !flagR(i-1) && y == 0 {
+							continue
+						}
+						if a == 1 && flagR(i-1) && y == 0 {
+							ny = 0
+						}
+						if a == 0 && !flagR(i-1) && y == 0 {
+							ny = 0
+						}
+						if b == 0 && flagL(i-1) && x == 0 {
+							continue
+						}
+						if b == 1 && flagL(i-1) && x == 0 {
+							nx = 0
+						}
+						if b == 0 && !flagL(i-1) && x == 0 {
+							nx = 0
+						}
+						dp[i-1][ny][nx] += dp[i][y][x]
+						dp[i-1][ny][nx] %= mod
+					}
+				}
+			}
+		}
+	}
+	ans := 0
+	for i := 0; i < 2; i++ {
+		for j := 0; j < 2; j++ {
+			ans += dp[0][i][j]
+			ans %= mod
+		}
+	}
+	out(ans)
 }

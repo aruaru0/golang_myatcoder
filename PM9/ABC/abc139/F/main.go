@@ -124,43 +124,10 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-type pair struct {
+type point struct {
 	x, y int
+	rad  float64
 }
-type pos struct {
-	n, x, y int
-}
-
-var memo map[pos]*pair
-
-func rec(n, x, y int) (int, int) {
-	if n == N {
-		return 0, 0
-	}
-	if memo[pos{n, x, y}] != nil {
-		ret := *memo[pos{n, x, y}]
-		return ret.x, ret.y
-	}
-	x0, y0 := rec(n+1, x, y)
-	x1, y1 := rec(n+1, x+X[n], y+Y[n])
-	x1 += X[n]
-	y1 += Y[n]
-
-	xx0 := x0 + x
-	yy0 := y0 + y
-	xx1 := x1 + x
-	yy1 := y1 + y
-
-	if xx0*xx0+yy0*yy0 > xx1*xx1+yy1*yy1 {
-		memo[pos{n, x, y}] = &pair{x0, y0}
-		return x0, y0
-	}
-	memo[pos{n, x, y}] = &pair{x1, y1}
-	return x1, y1
-}
-
-var N int
-var X, Y []int
 
 func main() {
 	defer wr.Flush()
@@ -168,15 +135,25 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N = getI()
-	X = make([]int, N)
-	Y = make([]int, N)
+	N := getI()
+	p := make([]point, N)
 	for i := 0; i < N; i++ {
-		X[i], Y[i] = getI(), getI()
+		x, y := getI(), getI()
+		rad := math.Atan2(float64(y), float64(x))
+		p[i] = point{x, y, rad}
 	}
-
-	memo = make(map[pos]*pair)
-	x, y := rec(0, 0, 0)
-
-	out(math.Sqrt(float64(x*x + y*y)))
+	sort.Slice(p, func(i, j int) bool {
+		return p[i].rad < p[j].rad
+	})
+	p = append(p, p...)
+	ans := 0
+	for i := 0; i < N; i++ {
+		x, y := 0, 0
+		for j := i; j < i+N; j++ {
+			x += p[j].x
+			y += p[j].y
+			ans = max(ans, x*x+y*y)
+		}
+	}
+	out(math.Sqrt(float64(ans)))
 }

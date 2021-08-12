@@ -371,6 +371,36 @@ func main() {
 	s := getS()
 	sa := suffixArrayS(s)
 	lcp := lcpArrayS(s, sa)
-	out(N, sa)
-	out(lcp)
+
+	ans := make([]int, N)
+	for i := 0; i < N; i++ {
+		ans[i] = N - i
+	}
+
+	for k := 0; k < 2; k++ {
+		st := make([][2]int, 0)
+		now := 0
+		for i := 0; i < N-1; i++ {
+			ll := 1
+			for len(st) != 0 && st[len(st)-1][0] >= lcp[i] {
+				h, l := st[len(st)-1][0], st[len(st)-1][1]
+				ll += l
+				now -= h * l
+				st = st[:len(st)-1]
+			}
+			now += lcp[i] * ll
+			st = append(st, [2]int{lcp[i], ll})
+			ans[sa[i+1]] += now
+		}
+		for i := 0; i < len(lcp)/2; i++ {
+			lcp[i], lcp[len(lcp)-1-i] = lcp[len(lcp)-1-i], lcp[i]
+		}
+		for i := 0; i < N/2; i++ {
+			sa[i], sa[N-1-i] = sa[N-1-i], sa[i]
+		}
+	}
+
+	for i := 0; i < N; i++ {
+		out(ans[i])
+	}
 }

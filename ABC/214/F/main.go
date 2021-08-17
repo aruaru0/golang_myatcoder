@@ -124,10 +124,34 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+const mod = int(1e9 + 7)
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	s := "-+" + getS()
+	n := len(s)
+	dp := make([]int, n)
+	dp[0] = 1
+	ans := 0
+	// out(s)
+	for i := 0; i < n-2; i++ {
+		tot := 0
+		for j := i; j >= 0; j-- {
+			tot += dp[j]
+			tot %= mod
+			// 1個飛びなので、同じ文字の出現する１つ手前までは加算する
+			if s[i+2] == s[j+1] {
+				break
+			}
+		}
+		dp[i+2] = tot
+		ans += dp[i+2]
+		ans %= mod
+	}
+	// out(dp)
+	out(ans)
 }

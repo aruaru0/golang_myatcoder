@@ -124,25 +124,81 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+type pos struct {
+	x, y int
+}
+
+var N int
+var p []pos
+var miny, maxy []int
+var rminy, rmaxy []int
+
+func ok(k int) bool {
+	l, r := 0, 0
+	// out("k=", k, p)
+	for r < N && l < N {
+		if r < N && p[r].x-p[l].x < k {
+			r++
+		}
+		// out(l, r)
+		if r == N {
+			break
+		}
+		// out(l, r, "l", miny[l], maxy[l], "r", rminy[r], rmaxy[r])
+		if p[r].x-p[l].x >= k && (abs(miny[l]-rmaxy[r]) >= k || abs(maxy[l]-rminy[r]) >= k) {
+			// out("pass")
+			return true
+		}
+		// out(l, r, p[r], miny, maxy)
+		if l < N && p[r].x-p[l].x >= k {
+			l++
+		}
+	}
+	return false
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N := getI()
-	x := make([]int, N)
-	y := make([]int, N)
-	m := make(map[int][]int)
+	N = getI()
+	p = make([]pos, N)
 	for i := 0; i < N; i++ {
-		x[i], y[i] = getI(), getI()
-		m[x[i]] = append(m[x[i]], y[i])
+		x, y := getI(), getI()
+		p[i] = pos{x, y}
 	}
-	xx := make([]int, 0)
-	for e := range m {
-		xx = append(xx, e)
+	sort.Slice(p, func(i, j int) bool {
+		return p[i].x < p[j].x
+	})
+
+	miny = make([]int, N)
+	maxy = make([]int, N)
+	miny[0] = p[0].y
+	maxy[0] = p[0].y
+	for i := 1; i < N; i++ {
+		miny[i] = min(miny[i-1], p[i].y)
+		maxy[i] = max(maxy[i-1], p[i].y)
 	}
 
-	out(xx)
-	out(m)
+	rminy = make([]int, N)
+	rmaxy = make([]int, N)
+	rminy[N-1] = p[N-1].y
+	rmaxy[N-1] = p[N-1].y
+	for i := N - 2; i >= 0; i-- {
+		rminy[i] = min(rminy[i+1], p[i].y)
+		rmaxy[i] = max(rmaxy[i+1], p[i].y)
+	}
+
+	l, r := 0, int(1e10)
+	for l+1 != r {
+		m := (l + r) / 2
+		if !ok(m) {
+			r = m
+		} else {
+			l = m
+		}
+	}
+	out(l)
 }

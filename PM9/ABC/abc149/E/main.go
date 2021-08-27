@@ -158,26 +158,17 @@ func main() {
 	}
 
 	// out(l)
-
+	// out(b, l)
+	// out(a)
 	ans := 0
-	x := make([]int, 0)
 	m := 0
 	for i := 0; i < N; i++ {
 		pos := lowerBound(a, l-a[i])
-		if pos != N {
-			x = append(x, a[i]+a[pos])
-		}
-		pos = min(N, pos+1)
-		// out(pos, b, b[len(b)-1]-b[pos], N-pos)
-		ans += b[len(b)-1] - b[pos] + a[i]*(N-pos)
-		m += N - pos
+		d := b[len(b)-1] - b[pos]
+		// out(i, d, pos, l-a[i])
+		ans += d + a[i]*(len(b)-1-pos)
+		m += len(b) - 1 - pos
 	}
-	// out(x, M, m)
-	sort.Slice(x, func(i, j int) bool {
-		return x[i] > x[j]
-	})
-	for i := 0; i < M-m; i++ {
-		ans += x[i]
-	}
-	out(ans)
+	// out(m)
+	out(ans - l*(m-M))
 }

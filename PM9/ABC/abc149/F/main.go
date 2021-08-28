@@ -317,23 +317,22 @@ func (m *modint) nCr(n, r int) int {
 	return (ret)
 }
 
-type edge struct {
-	to, idx int
-}
-
-var count []int
-var node [][]edge
+var count [][]int
+var node [][]int
 var N int
 
 func dfs(cur, prev int) int {
 	ret := 0
 	for _, e := range node[cur] {
-		if e.to == prev {
+		if e == prev {
 			continue
 		}
-		r := dfs(e.to, cur)
-		count[e.idx] = r
+		r := dfs(e, cur)
+		count[cur] = append(count[cur], r)
 		ret += r
+	}
+	if prev != -1 {
+		count[cur] = append(count[cur], N-ret-1)
 	}
 	return ret + 1
 }
@@ -345,29 +344,26 @@ func main() {
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
 	N = getI()
-	node = make([][]edge, N)
-	e := make([][2]int, N-1)
+	node = make([][]int, N)
 	for i := 0; i < N-1; i++ {
 		a, b := getI()-1, getI()-1
-		node[a] = append(node[a], edge{b, i})
-		node[b] = append(node[b], edge{a, i})
-		e[i] = [2]int{a, b}
+		node[a] = append(node[a], b)
+		node[b] = append(node[b], a)
 	}
-	count = make([]int, N-1)
+	count = make([][]int, N)
 	dfs(0, -1)
-	out(count)
+	// out(count)
 
 	mod := newModint(1e9 + 7)
 	tot := 0
-	for i := 0; i < N-1; i++ {
-		x := count[i]
-		y := N - x - 1
-		out(x, y)
-		x = mod.sub(1, mod.div(1, mod.pow(2, x)))
-		y = mod.div(1, mod.pow(2, y))
-		d := mod.mul(x, y)
-		tot = mod.add(tot, d)
+	for i := 0; i < N; i++ {
+		sum := mod.sub(mod.pow(2, N-1), 1)
+		for _, e := range count[i] {
+			sum = mod.sub(sum, mod.sub(mod.pow(2, e), 1))
+		}
+		// out(count[i], sum)
+		tot = mod.add(tot, sum)
 	}
-	tot = mod.div(tot, mod.pow(2, N))
-	out(tot)
+	// out(tot, mod.pow(2, N))
+	out(mod.div(tot, mod.pow(2, N)))
 }

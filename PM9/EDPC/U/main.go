@@ -124,14 +124,35 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-func condAB(c bool, a, b int) int {
-	if c {
-		return a
+func f(S int) int {
+	if memo[S] != nil {
+		return *memo[S]
 	}
-	return b
+	// すべて同じグループに入れる
+	ret := 0
+	for i := 0; i < N; i++ {
+		for j := i + 1; j < N; j++ {
+			if (S>>i)%2 == 1 && (S>>j)%2 == 1 {
+				ret += a[i][j]
+			}
+		}
+	}
+	// Sとjに分割してグループにする
+	// 整数Sの1が立った部分の部分集合をすべて列挙する
+	for i := S; i != 0; i = (i - 1) & S {
+		if i == S {
+			continue
+		}
+		ret = max(ret, f(i)+f(S^i))
+	}
+
+	memo[S] = &ret
+	return ret
 }
 
-const mod = int(1e9 + 7)
+var memo []*int
+var N int
+var a [][]int
 
 func main() {
 	defer wr.Flush()
@@ -139,38 +160,13 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	K := getS()
-	D := getI()
-
-	nbits := len(K)
-
-	//  [digit][smaller][cond1]
-	//  cond1 ... 3である
-	dp := make([][2][110]int, nbits+1)
-
-	dp[0][0][0] = 1
-	for i := 0; i < nbits; i++ {
-		d := int(K[i] - '0')
-		for k := 0; k < D; k++ {
-			for j := 0; j < 10; j++ {
-				dp[i+1][1][(k+j)%D] += dp[i][1][k]
-				dp[i+1][1][(k+j)%D] %= mod
-			}
-		}
-		// 桁が決まっている場合
-		for k := 0; k < D; k++ {
-			for j := 0; j < d; j++ {
-				dp[i+1][1][(k+j)%D] += dp[i][0][k]
-				dp[i+1][1][(k+j)%D] %= mod
-			}
-		}
-		for j := 0; j < D; j++ {
-			dp[i+1][0][(j+d)%D] += dp[i][0][j]
-			dp[i+1][0][(j+d)%D] %= mod
-		}
+	N = getI()
+	a = make([][]int, N)
+	for i := 0; i < N; i++ {
+		a[i] = getInts(N)
 	}
-	ans := (dp[nbits][0][0] + dp[nbits][1][0]) % mod
-	ans = (ans - 1 + mod) % mod
 
-	out(ans)
+	n := 1 << N
+	memo = make([]*int, n)
+	out(f(n - 1))
 }

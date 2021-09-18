@@ -124,10 +124,103 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+func bsf(c int, node [][]int) []int {
+	dist := make([]int, N)
+	for i := 0; i < N; i++ {
+		dist[i] = inf
+	}
+
+	q := []int{c}
+	dist[c] = 0
+	for len(q) != 0 {
+		cur := q[0]
+		q = q[1:]
+		for _, e := range node[cur] {
+			if dist[e] != inf {
+				continue
+			}
+			dist[e] = dist[cur] + 1
+			q = append(q, e)
+		}
+	}
+
+	return dist
+}
+
+func bsf2(c int, node [][]int, f, t int) int {
+	dist := make([]int, N)
+	for i := 0; i < N; i++ {
+		dist[i] = inf
+	}
+
+	q := []int{c}
+	dist[c] = 0
+	for len(q) != 0 {
+		cur := q[0]
+		q = q[1:]
+		for _, e := range node[cur] {
+			if cur == f && e == t {
+				continue
+			}
+			if dist[e] != inf {
+				continue
+			}
+			dist[e] = dist[cur] + 1
+			q = append(q, e)
+		}
+	}
+
+	return dist[N-1]
+}
+
+const inf = int(1e10)
+
+var N, M int
+
+type edge struct {
+	s, t int
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	N, M = getI(), getI()
+	node := make([][]int, N)
+	rnode := make([][]int, N)
+	e := make([]edge, M)
+	for i := 0; i < M; i++ {
+		s, t := getI()-1, getI()-1
+		node[s] = append(node[s], t)
+		rnode[t] = append(rnode[t], s)
+		e[i] = edge{s, t}
+	}
+
+	dist1 := bsf(0, node)
+	distN := bsf(N-1, rnode)
+
+	// out(dist1)
+	// out(distN)
+
+	minD := dist1[N-1]
+	for i := 0; i < M; i++ {
+		d := dist1[e[i].s] + distN[e[i].t] + 1
+		if d == minD {
+			ret := bsf2(0, node, e[i].s, e[i].t)
+			if ret == inf {
+				out(-1)
+			} else {
+				out(ret)
+			}
+		} else {
+			if minD == inf {
+				out(-1)
+			} else {
+				out(minD)
+			}
+		}
+	}
+
 }

@@ -124,10 +124,120 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+type edge struct {
+	a, b, c int
+}
+
+//
+// Disjoint Set Union: Union Find Tree
+//
+
+// DSU :
+type DSU struct {
+	parentOrSize []int
+	n            int
+}
+
+// newDsu :
+func newDsu(n int) *DSU {
+	var d DSU
+	d.n = n
+	d.parentOrSize = make([]int, n)
+	for i := 0; i < n; i++ {
+		d.parentOrSize[i] = -1
+	}
+	return &d
+}
+
+// Merge :
+func (d DSU) Merge(a, b int) int {
+	x, y := d.Leader(a), d.Leader(b)
+	if x == y {
+		return x
+	}
+	if -d.parentOrSize[x] < -d.parentOrSize[y] {
+		x, y = y, x
+	}
+	d.parentOrSize[x] += d.parentOrSize[y]
+	d.parentOrSize[y] = x
+	return x
+}
+
+// Same :
+func (d DSU) Same(a, b int) bool {
+	return d.Leader(a) == d.Leader(b)
+}
+
+// Leader :
+func (d DSU) Leader(a int) int {
+	if d.parentOrSize[a] < 0 {
+		return a
+	}
+	d.parentOrSize[a] = d.Leader(d.parentOrSize[a])
+	return d.parentOrSize[a]
+}
+
+// Size :
+func (d DSU) Size(a int) int {
+	return -d.parentOrSize[d.Leader(a)]
+}
+
+// Groups : original implement
+func (d DSU) Groups() [][]int {
+	m := make(map[int][]int)
+	for i := 0; i < d.n; i++ {
+		x := d.Leader(i)
+		if x < 0 {
+			m[i] = append(m[i], i)
+		} else {
+			m[x] = append(m[x], i)
+		}
+	}
+	ret := make([][]int, len(m))
+	idx := 0
+	for _, e := range m {
+		ret[idx] = make([]int, len(e))
+		copy(ret[idx], e)
+		idx++
+	}
+	return ret
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	N, M := getI(), getI()
+	p := make([]edge, M)
+	sum := 0
+	for i := 0; i < M; i++ {
+		p[i] = edge{getI() - 1, getI() - 1, getI()}
+		sum += p[i].c
+	}
+
+	sort.Slice(p, func(i, j int) bool {
+		return p[i].c < p[j].c
+	})
+
+	// out(sum, p)
+
+	uf := newDsu(N)
+	tot := 0
+	for i := 0; i < M; i++ {
+		a, b, c := p[i].a, p[i].b, p[i].c
+		if c <= 0 {
+			uf.Merge(a, b)
+			// out(a, b)
+			tot += c
+		} else {
+			if !uf.Same(a, b) {
+				uf.Merge(a, b)
+				// out(a, b)
+				tot += c
+			}
+		}
+	}
+	out(sum - tot)
 }

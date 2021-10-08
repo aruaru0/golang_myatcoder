@@ -124,16 +124,7 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-var N int
-var a []int
-
-func f(s int) int {
-	tot := 0
-	for i := s; i < N; i += 2 {
-		tot += a[i]
-	}
-	return tot
-}
+const inf = int(1e15)
 
 func main() {
 	defer wr.Flush()
@@ -141,7 +132,27 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N = getI()
-	a = getInts(N)
+	N := getI()
+	a := getInts(N)
 
+	dp := make([][4]int, N+1)
+
+	k := 1 + N%2
+	for i := 0; i <= N; i++ {
+		for j := 0; j <= k; j++ {
+			dp[i][j] = -inf
+		}
+	}
+	dp[0][0] = 0
+	for i := 0; i < N; i++ {
+		for j := 0; j <= k; j++ {
+			chmax(&dp[i+1][j+1], dp[i][j])
+			now := dp[i][j]
+			if (i+j)%2 == 0 {
+				now += a[i]
+			}
+			chmax(&dp[i+1][j], now)
+		}
+	}
+	out(dp[N][k])
 }

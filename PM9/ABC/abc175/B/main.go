@@ -124,81 +124,28 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-type BIT struct {
-	v []int
-}
-
-func newBIT(n int) *BIT {
-	b := new(BIT)
-	b.v = make([]int, n)
-	return b
-}
-func (b BIT) sum(a int) int {
-	ret := 0
-	for i := a + 1; i > 0; i -= i & -i {
-		ret += b.v[i-1]
-	}
-	return ret
-}
-func (b BIT) rangeSum(x, y int) int {
-	if y == 0 {
-		return 0
-	}
-	y--
-	if x == 0 {
-		return b.sum(y)
-	} else {
-		return b.sum(y) - b.sum(x-1)
-	}
-}
-func (b BIT) add(a, w int) {
-	n := len(b.v)
-	for i := a + 1; i <= n; i += i & -i {
-		b.v[i-1] += w
-	}
-}
-
-type pos struct {
-	l, r, idx int
-}
-
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N, Q := getI(), getI()
-	c := getInts(N)
-	p := make([]pos, Q)
-	for i := 0; i < Q; i++ {
-		p[i] = pos{getI() - 1, getI() - 1, i}
-	}
-	sort.Slice(p, func(i, j int) bool {
-		return p[i].r < p[j].r
-	})
-
-	bit := newBIT(N + 1)
-	m := make([]int, N+1)
-	for i := 0; i <= N; i++ {
-		m[i] = -1
-	}
-
-	idx := 0
-	ans := make([]int, Q)
+	N := getI()
+	l := getInts(N)
+	cnt := 0
 	for i := 0; i < N; i++ {
-		if m[c[i]] != -1 {
-			bit.add(m[c[i]], -1)
-		}
-		m[c[i]] = i
-		bit.add(i, 1)
-		for idx < Q && p[idx].r == i {
-			ans[p[idx].idx] = bit.rangeSum(p[idx].l, p[idx].r+1)
-			idx++
+		for j := i + 1; j < N; j++ {
+			for k := j + 1; k < N; k++ {
+				a, b, c := l[i], l[j], l[k]
+				// |a-b| < c < a+b
+				if a == b || b == c || c == a {
+					continue
+				}
+				if a+b > c && b+c > a && c+a > b {
+					cnt++
+				}
+			}
 		}
 	}
-
-	for _, e := range ans {
-		out(e)
-	}
+	out(cnt)
 }

@@ -124,82 +124,7 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-func NextPermutation(x sort.Interface) bool {
-	n := x.Len() - 1
-	if n < 1 {
-		return false
-	}
-	j := n - 1
-	for ; !x.Less(j, j+1); j-- {
-		if j == 0 {
-			return false
-		}
-	}
-	l := n
-	for !x.Less(j, l) {
-		l--
-	}
-	x.Swap(j, l)
-	for k, l := j+1, n; k < l; {
-		x.Swap(k, l)
-		k++
-		l--
-	}
-	return true
-}
-
-type pair struct {
-	a, b int
-}
-
-var memo [2000]map[pair]int
-
-func rec(n int, a []int) int {
-	x := []int{0, 1, 2, 3, 4}
-
-	if len(a) == 3 {
-		if a[0] == a[1] && a[1] == a[2] {
-			return 1
-		}
-		return 0
-	}
-
-	v, ok := memo[n][pair{a[0], a[1]}]
-	if ok {
-		return v
-	}
-
-	ret := 0
-	b := make([]int, 5)
-	for i := 0; i < 5; i++ {
-		b[i] = a[i]
-	}
-
-	for {
-		for i := 0; i < 5; i++ {
-			a[i] = b[x[i]]
-		}
-		point := 0
-		if a[0] == a[1] && a[1] == a[2] {
-			point++
-		}
-		r := point + rec(n+1, a[3:])
-
-		ret = max(ret, r)
-
-		if !NextPermutation(sort.IntSlice(x)) {
-			break
-		}
-	}
-
-	for i := 0; i < 5; i++ {
-		a[i] = b[i]
-	}
-
-	memo[n][pair{a[0], a[1]}] = ret
-
-	return ret
-}
+const inf = int(1e18)
 
 func main() {
 	defer wr.Flush()
@@ -207,11 +132,72 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N := getI()
-	a := getInts(3 * N)
+	n := getI()
+	a := getInts(n * 3)
 
-	for i := 0; i < 2000; i++ {
-		memo[i] = make(map[pair]int)
+	// dpテーブルの初期化
+	dp := make([][]int, n+1)
+	for i := 0; i <= n; i++ {
+		dp[i] = make([]int, n+1)
+		for j := 0; j <= n; j++ {
+			dp[i][j] = -inf
+		}
 	}
-	out(rec(0, a))
+	dp[a[0]][a[1]], dp[a[1]][a[0]] = 0, 0
+
+	// pxの初期化
+	px := make([]int, n+1)
+	for i := 0; i <= n; i++ {
+		px[i] = -inf
+	}
+	px[a[0]], px[a[1]] = 0, 0
+
+	xx := 0
+	add := 0
+
+	for y := 1; y < n; y++ {
+		// 先頭の３つの要素を取り出す
+		a, b, c := a[3*y-1], a[3*y], a[3*y+1]
+		// すべて同じ場合はaddを１つ増やす
+		if a == b && b == c {
+			add++
+			continue
+		}
+		// パターン列挙
+		tmp := make([][3]int, 0)
+		for i := 1; i <= n; i++ {
+			if b == c { // bとcが同じ場合
+				tmp = append(tmp, [3]int{i, a, max(px[i], dp[i][b]+1)})
+			} else {
+				tmp = append(tmp, [3]int{i, a, px[i]})
+			}
+			if c == a { // cとaが同じ場合
+				tmp = append(tmp, [3]int{i, b, max(px[i], dp[i][c]+1)})
+			} else {
+				tmp = append(tmp, [3]int{i, b, px[i]})
+			}
+			if a == b { // aとbが同じ場合
+				tmp = append(tmp, [3]int{i, c, max(px[i], dp[i][a]+1)})
+			} else {
+				tmp = append(tmp, [3]int{i, c, px[i]})
+			}
+		}
+
+		tmp = append(tmp, [3]int{a, b, max(xx, dp[c][c]+1)})
+		tmp = append(tmp, [3]int{b, c, max(xx, dp[a][a]+1)})
+		tmp = append(tmp, [3]int{c, a, max(xx, dp[b][b]+1)})
+
+		// 全パターンに対してDPを更新
+		for _, e := range tmp {
+			p, q, v := e[0], e[1], e[2] // pとqが残っているときの最大値
+			dp[p][q] = max(dp[p][q], v)
+			px[p] = max(px[p], v)
+			dp[q][p] = max(dp[q][p], v)
+			px[q] = max(px[q], v)
+			xx = max(xx, v)
+		}
+	}
+
+	xx = max(xx, dp[a[3*n-1]][a[3*n-1]]+1)
+	out(xx + add)
 }

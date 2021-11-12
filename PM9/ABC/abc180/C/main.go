@@ -124,7 +124,18 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-const mod = 998244353
+func divisor(n int) []int {
+	ret := []int{}
+	for i := 1; i*i <= n; i++ {
+		if n%i == 0 {
+			ret = append(ret, i)
+			if i*i != n {
+				ret = append(ret, n/i)
+			}
+		}
+	}
+	return ret
+}
 
 func main() {
 	defer wr.Flush()
@@ -132,36 +143,10 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N, K := getI(), getI()
-	l, r := make([]int, K), make([]int, K)
-	for i := 0; i < K; i++ {
-		l[i], r[i] = getI(), getI()
+	N := getI()
+	d := divisor(N)
+	sort.Ints(d)
+	for _, e := range d {
+		out(e)
 	}
-
-	dp := make([]int, N)
-	dpsum := make([]int, N+1)
-
-	dp[0] = 1
-	dpsum[1] = 1
-	for i := 1; i < N; i++ {
-		for k := 0; k < K; k++ {
-			sum := 0
-			ll, rr := i-r[k], i-l[k]+1
-			if rr >= 0 {
-				sum += dpsum[rr]
-				sum %= mod
-			}
-			if ll >= 0 {
-				sum -= dpsum[ll]
-				sum %= mod
-				if sum < 0 {
-					sum += mod
-				}
-			}
-			dp[i] += sum
-			dp[i] %= mod
-		}
-		dpsum[i+1] = (dpsum[i] + dp[i]) % mod
-	}
-	out(dp[N-1])
 }

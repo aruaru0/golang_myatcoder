@@ -124,7 +124,13 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-const mod = 998244353
+const inf = int(1e18)
+
+func calc(from, to int) int {
+	return abs(x[to]-x[from]) + abs(y[to]-y[from]) + max(0, z[to]-z[from])
+}
+
+var x, y, z []int
 
 func main() {
 	defer wr.Flush()
@@ -132,36 +138,71 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N, K := getI(), getI()
-	l, r := make([]int, K), make([]int, K)
-	for i := 0; i < K; i++ {
-		l[i], r[i] = getI(), getI()
+	N := getI()
+	x, y, z = make([]int, N), make([]int, N), make([]int, N)
+	for i := 0; i < N; i++ {
+		x[i], y[i], z[i] = getI(), getI(), getI()
 	}
 
-	dp := make([]int, N)
-	dpsum := make([]int, N+1)
+	dist := make([][]int, N)
+	for from := 0; from < N; from++ {
+		dist[from] = make([]int, N)
+		for to := 0; to < N; to++ {
+			dist[from][to] = calc(from, to)
+		}
+	}
 
-	dp[0] = 1
-	dpsum[1] = 1
-	for i := 1; i < N; i++ {
-		for k := 0; k < K; k++ {
-			sum := 0
-			ll, rr := i-r[k], i-l[k]+1
-			if rr >= 0 {
-				sum += dpsum[rr]
-				sum %= mod
-			}
-			if ll >= 0 {
-				sum -= dpsum[ll]
-				sum %= mod
-				if sum < 0 {
-					sum += mod
+	// ワーシャルフロイド法で最短経路探索
+	for k := 0; k < N; k++ {
+		for i := 0; i < N; i++ {
+			for j := 0; j < N; j++ {
+				if dist[i][k]+dist[k][j] < dist[i][j] {
+					dist[i][j] = dist[i][k] + dist[k][j]
 				}
 			}
-			dp[i] += sum
-			dp[i] %= mod
 		}
-		dpsum[i+1] = (dpsum[i] + dp[i]) % mod
 	}
-	out(dp[N-1])
+
+	n := 1 << N
+
+	dp := make([][]int, N)
+	for i := 0; i < N; i++ {
+		dp[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			dp[i][j] = inf
+		}
+	}
+
+	// from := 0
+	// for to := 0; to < N; to++ {
+	// 	dp[from][1|1<<to] = dist[from][to]
+	// }
+	dp[0][1] = 0
+	// out(dist)
+
+	for bit := 0; bit < n; bit++ {
+		for from := 0; from < N; from++ {
+			if (bit>>from)%2 == 0 {
+				continue
+			}
+			for to := 0; to < N; to++ {
+				if (bit>>to)%2 == 1 {
+					continue
+				}
+				if dp[from][bit] == inf {
+					continue
+				}
+				// out(from, to, bit, dp[from][bit], dist[from][to])
+				chmin(&dp[to][bit|(1<<to)], dp[from][bit]+dist[from][to])
+			}
+		}
+		// out(dp)
+	}
+	ans := inf
+	for i := 1; i < N; i++ {
+		from, to := i, 0
+		d := dist[from][to]
+		ans = min(ans, dp[from][(1<<N)-1]+d)
+	}
+	out(ans)
 }

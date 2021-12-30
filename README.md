@@ -11,4 +11,3 @@ Yukicoderも始めました。
 テンプレートは
 template.go
 になります。
-

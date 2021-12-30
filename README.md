@@ -8,6 +8,5 @@ Yukicoderも始めました。
 ./stock
 ./algo
 
-テンプレートは
+テンプレートは以下になります。
 template.go
-になります。

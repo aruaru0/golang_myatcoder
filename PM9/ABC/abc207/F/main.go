@@ -127,26 +127,27 @@ func upperBound(a []int, x int) int {
 const mod = 1000000007
 
 var node = make([][]int, 2020)
+
 var dp = [2020][2020][3]int{}
 
-func dfs(u, v int) int {
+func dfs(prev, cur int) int {
 	s := 1
-	dp[v][0][0] = 1
-	dp[v][1][1] = 1
-	dp[v][1][2] = 1
-	for _, w := range node[v] {
-		if w != u {
-			t := dfs(v, w)
+	dp[cur][0][0] = 1
+	dp[cur][1][1] = 1
+	dp[cur][1][2] = 1
+	for _, next := range node[cur] {
+		if next != prev {
+			t := dfs(cur, next)
 			for k := s; k >= 0; k-- {
 				for l := 1; l < t+1; l++ {
-					dp[v][k+l][0] += dp[v][k][0] * ((dp[w][l][0] + dp[w][l][1] - dp[w][l-1][0] + mod) % mod) % mod
-					dp[v][k+l][0] %= mod
-					dp[v][k+l][1] += dp[v][k][1] * ((dp[w][l][0] + dp[w][l][1] + dp[w][l][2] - dp[w][l-1][0] + mod) % mod) % mod
-					dp[v][k+l][1] %= mod
-					dp[v][k+l][2] += dp[v][k][2] * (dp[w][l][1] + dp[w][l][2]) % mod
-					dp[v][k+l][2] %= mod
+					dp[cur][k+l][0] += dp[cur][k][0] * ((dp[next][l][0] + dp[next][l][1] - dp[next][l-1][0] + mod) % mod) % mod
+					dp[cur][k+l][0] %= mod
+					dp[cur][k+l][1] += dp[cur][k][1] * ((dp[next][l][0] + dp[next][l][1] + dp[next][l][2] - dp[next][l-1][0] + mod) % mod) % mod
+					dp[cur][k+l][1] %= mod
+					dp[cur][k+l][2] += dp[cur][k][2] * (dp[next][l][1] + dp[next][l][2]) % mod
+					dp[cur][k+l][2] %= mod
 				}
-				dp[v][k][2] = 0
+				dp[cur][k][2] = 0
 			}
 			s += t
 			s %= mod
@@ -154,7 +155,6 @@ func dfs(u, v int) int {
 	}
 	return s
 }
-
 
 // 現状のスキルでは厳しめ。とりあえず、コピーして内容を確認
 func main() {

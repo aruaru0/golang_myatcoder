@@ -1,0 +1,209 @@
+package main
+
+import (
+	"bufio"
+	"container/heap"
+	"fmt"
+	"math"
+	"os"
+	"sort"
+	"strconv"
+)
+
+var sc = bufio.NewScanner(os.Stdin)
+var wr = bufio.NewWriter(os.Stdout)
+
+func out(x ...interface{}) {
+	fmt.Fprintln(wr, x...)
+}
+
+func getI() int {
+	sc.Scan()
+	i, e := strconv.Atoi(sc.Text())
+	if e != nil {
+		panic(e)
+	}
+	return i
+}
+
+func getF() float64 {
+	sc.Scan()
+	i, e := strconv.ParseFloat(sc.Text(), 64)
+	if e != nil {
+		panic(e)
+	}
+	return i
+}
+
+func getInts(N int) []int {
+	ret := make([]int, N)
+	for i := 0; i < N; i++ {
+		ret[i] = getI()
+	}
+	return ret
+}
+
+func getS() string {
+	sc.Scan()
+	return sc.Text()
+}
+
+// min, max, asub, absなど基本関数
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+// min for n entry
+func nmin(a ...int) int {
+	ret := a[0]
+	for _, e := range a {
+		ret = min(ret, e)
+	}
+	return ret
+}
+
+// max for n entry
+func nmax(a ...int) int {
+	ret := a[0]
+	for _, e := range a {
+		ret = max(ret, e)
+	}
+	return ret
+}
+
+func chmin(a *int, b int) bool {
+	if *a < b {
+		return false
+	}
+	*a = b
+	return true
+}
+
+func chmax(a *int, b int) bool {
+	if *a > b {
+		return false
+	}
+	*a = b
+	return true
+}
+
+func asub(a, b int) int {
+	if a > b {
+		return a - b
+	}
+	return b - a
+}
+
+func abs(a int) int {
+	if a >= 0 {
+		return a
+	}
+	return -a
+}
+
+func lowerBound(a []int, x int) int {
+	idx := sort.Search(len(a), func(i int) bool {
+		return a[i] >= x
+	})
+	return idx
+}
+
+func upperBound(a []int, x int) int {
+	idx := sort.Search(len(a), func(i int) bool {
+		return a[i] > x
+	})
+	return idx
+}
+
+type pqi struct{ a, x, y int }
+
+type priorityQueue []pqi
+
+func (pq priorityQueue) Len() int            { return len(pq) }
+func (pq priorityQueue) Swap(i, j int)       { pq[i], pq[j] = pq[j], pq[i] }
+func (pq priorityQueue) Less(i, j int) bool  { return pq[i].a < pq[j].a }
+func (pq *priorityQueue) Push(x interface{}) { *pq = append(*pq, x.(pqi)) }
+func (pq *priorityQueue) Pop() interface{} {
+	x := (*pq)[len(*pq)-1]
+	*pq = (*pq)[0 : len(*pq)-1]
+	return x
+}
+
+const inf = int(1e18)
+
+func main() {
+	defer wr.Flush()
+	sc.Split(bufio.ScanWords)
+	sc.Buffer([]byte{}, math.MaxInt32)
+	// this template is new version.
+	// use getI(), getS(), getInts(), getF()
+	H, W := getI(), getI()
+	s := make([]string, H)
+	for i := 0; i < H; i++ {
+		s[i] = getS()
+	}
+
+	dist := make([][]int, H)
+	for i := 0; i < H; i++ {
+		dist[i] = make([]int, W)
+		for j := 0; j < W; j++ {
+			dist[i][j] = inf
+		}
+	}
+	pq := priorityQueue{}
+	heap.Push(&pq, pqi{0, 0, 0})
+	dist[0][0] = 0
+
+	dx := []int{-1, 1, 0, 0}
+	dy := []int{0, 0, -1, 1}
+
+	for len(pq) != 0 {
+		cur := pq[0]
+		heap.Pop(&pq)
+		if dist[cur.y][cur.x] < cur.a {
+			continue
+		}
+		// コスト０の移動
+		for i := 0; i < 4; i++ {
+			px := cur.x + dx[i]
+			py := cur.y + dy[i]
+			if px < 0 || px >= W || py < 0 || py >= H {
+				continue
+			}
+			if s[py][px] == '#' {
+				continue
+			}
+			if dist[py][px] > dist[cur.y][cur.x] {
+				dist[py][px] = dist[cur.y][cur.x]
+				heap.Push(&pq, pqi{dist[py][px], px, py})
+			}
+		}
+		// 現在地点から破壊により移動（現在地中心で5x5（角は除く）に移動できる）
+		for py := cur.y - 2; py <= cur.y+2; py++ {
+			for px := cur.x - 2; px <= cur.x+2; px++ {
+				if abs(cur.x-px)+abs(cur.y-py) == 4 {
+					continue // 角は飛ばす
+				}
+				if px < 0 || px >= W || py < 0 || py >= H {
+					continue
+				}
+				if dist[py][px] > dist[cur.y][cur.x]+1 {
+					dist[py][px] = dist[cur.y][cur.x] + 1
+					heap.Push(&pq, pqi{dist[py][px], px, py})
+				}
+			}
+		}
+	}
+
+	out(dist[H-1][W-1])
+}

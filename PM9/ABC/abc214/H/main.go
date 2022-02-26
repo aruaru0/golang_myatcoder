@@ -419,6 +419,7 @@ func main() {
 	es := make([]pair, 0)
 	v0 := -1
 	{
+		// SCCを用いて、DAGに変換する
 		g := newSccGraph(n)
 		es_ := make([]pair, 0)
 		for i := 0; i < m; i++ {

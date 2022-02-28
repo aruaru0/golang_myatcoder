@@ -341,9 +341,12 @@ func main() {
 	tot := len(c)
 	for k := 1; k <= N; k++ {
 		all := mod.nCr(N, k)
+		// nCr(N, k) * 色の数
 		ans := mod.mul(all, tot)
 		for n, e := range cnt {
+			// n個ある色を含まない場合はN-n個からk個を選ぶことになる
 			d := mod.nCr(N-n, k)
+			// n個の色の数がe種あるので、ansからe種分引く
 			ans = mod.sub(ans, mod.mul(d, e))
 		}
 		out(mod.div(ans, all))

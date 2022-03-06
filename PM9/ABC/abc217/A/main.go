@@ -130,15 +130,10 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	s := getS()
-	x := s[:len(s)-2]
-	y := int(s[len(s)-1] - '0')
-	switch {
-	case 0 <= y && y <= 2:
-		out(x + "-")
-	case 3 <= y && y <= 6:
-		out(x)
-	case 7 <= y && y <= 9:
-		out(x + "+")
+	s, t := getS(), getS()
+	if s < t {
+		out("Yes")
+	} else {
+		out("No")
 	}
 }

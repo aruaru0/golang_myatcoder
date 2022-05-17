@@ -337,23 +337,13 @@ func main() {
 	// use getI(), getS(), getInts(), getF()
 	N := getI()
 
-	// tot := 0
-	// sum := 0
-	// for i := 1; i <= N; i++ {
-	// 	tot, _ = f(i)
-	// 	sum += tot
-	// }
-	// out(sum)
 	mod := newModint(998244353)
 
 	d, x := f(N)
 	d %= mod.mod
 	ans := mod.div((1+d)*d%mod.mod, 2)
-	// out(d, x)
 	for x > 0 {
-		// out("ans, x", ans, x)
 		y, _ := f(x)
-		// out("y = ", y)
 		y %= mod.mod
 		tmp := mod.div((1+y)*y%mod.mod, 2)
 		ans = mod.add(ans, tmp)

@@ -124,44 +124,11 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-var N, X int
-var a []int
-var memo map[int]*int
+const inf int = 1e18
 
-func ceil(x, y int) int {
-	if x%y == 0 {
-		return x / y
-	}
-	return x/y + 1
-}
-
-// メモ化再帰
-func rec(x, beg int) int {
-	last := len(a) - 1
-	if memo[x] != nil {
-		return *memo[x]
-	}
-	// これより大きなコインはないのですべてこのコインで支払う
-	if beg == last {
-		return x / a[last]
-	}
-	// 過不足がなくなれば終わり
-	if x == 0 {
-		return 0
-	}
-	// crr: 現在のコイン、　nxt: 次に大きなコイン
-	crr := a[beg]
-	nxt := a[beg+1]
-	// 次のコインで払えない部分がこのコインで何枚になるか
-	r := x % nxt / crr
-	// 下の桁が0になるように支払った場合の値で上の桁の支払いを計算
-	ans := rec(x/nxt*nxt, beg+1) + r
-	// もし、払うコインがある場合は、上の桁から刈りてくる場合を計算
-	if r != 0 {
-		ans = min(ans, rec(ceil(x, nxt)*nxt, beg+1)+(nxt/crr-r))
-	}
-	memo[x] = &ans
-	return ans
+type pair struct {
+	x, y   int
+	px, py int
 }
 
 func main() {
@@ -170,8 +137,62 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N, X = getI(), getI()
-	a = getInts(N)
-	memo = make(map[int]*int)
-	out(rec(X, 0))
+	N := getI()
+	ax, ay := getI()-1, getI()-1
+	bx, by := getI()-1, getI()-1
+	s := make([]string, N)
+	for i := 0; i < N; i++ {
+		s[i] = getS()
+	}
+	dist := make([][]int, N)
+	for i := 0; i < N; i++ {
+		dist[i] = make([]int, N)
+		for j := 0; j < N; j++ {
+			dist[i][j] = inf
+		}
+	}
+
+	dist[ax][ay] = 0
+	q := []pair{pair{ax, ay, -1, -1}}
+	dx := []int{-1, -1, 1, 1}
+	dy := []int{-1, 1, -1, 1}
+	for len(q) != 0 {
+		cur := q[0]
+		q = q[1:]
+		for i := 0; i < 4; i++ {
+			cx, cy := cur.x, cur.y
+			for {
+				px := cx + dx[i]
+				py := cy + dy[i]
+				// 来た方に戻る方向はなし
+				if px == cur.px && py == cur.py {
+					break
+				}
+				// 範囲外はなし
+				if px < 0 || px >= N || py < 0 || py >= N {
+					break
+				}
+				// 壁はなし
+				if s[px][py] == '#' {
+					break
+				}
+				// 既に訪れて、かつ、手数が大きい場合はなし
+				if dist[px][py] != inf && dist[px][py] < dist[cur.x][cur.y]+1 {
+					break
+				}
+				dist[px][py] = dist[cur.x][cur.y] + 1
+				q = append(q, pair{px, py, cx, cy})
+				cx, cy = px, py
+			}
+		}
+		// for i := 0; i < N; i++ {
+		// 	out(dist[i])
+		// }
+	}
+
+	if dist[bx][by] == inf {
+		out(-1)
+	} else {
+		out(dist[bx][by])
+	}
 }

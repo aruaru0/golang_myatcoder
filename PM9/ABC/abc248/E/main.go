@@ -132,15 +132,19 @@ func gcd(a, b int) int {
 }
 
 func norm(up, dn int, slope bool) (int, int) {
+	// 分母が負の場合は正にする
 	if dn < 0 {
 		up *= -1
 		dn *= -1
 	}
+	// 分母が０の場合はSlope＝trueならupを１にする
+	// ※水平の場合の特殊処理
 	if dn == 0 {
 		if slope {
 			up = 1
 		}
 	} else {
+		// gcdで割ってdx,dyを正規化
 		g := gcd(abs(up), dn)
 		up /= g
 		dn /= g
@@ -156,10 +160,14 @@ type P struct {
 }
 
 func getParam(a, b int) P {
+	// dx, dyを求める
 	dx := X[a] - X[b]
 	dy := Y[a] - Y[b]
 	dy, dx = norm(dy, dx, true)
 
+	// 切片位置を求める
+	// y = dy/dx * x + b
+	// b = y - dy/dx * x = (dx*y - dy*x)/dx = bu/bd
 	bu := Y[a]*dx - dy*X[a]
 	bd := dx
 	bu, bd = norm(bu, bd, false)

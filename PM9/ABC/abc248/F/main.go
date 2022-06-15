@@ -124,8 +124,7 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-var N, P int
-var dp [3100][9100][2]int
+var dp [][9100][2]int32
 
 func main() {
 	defer wr.Flush()
@@ -133,10 +132,11 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N, P = getI(), getI()
+	N, P := getI(), uint32(getI())
 
 	// [i][j][k] i列目まで決まっていて、削除した辺がｊ個で、
 	// k = 0非連結　or 1連結の時の組み合わせの数
+	dp := make([][9100][2]uint32, N+1)
 	dp[1][0][1] = 1 // １列目で削除が０ならつながっている（連結）
 	dp[1][1][0] = 1 // １列目で削除が１ならつながっていない（非連結）
 

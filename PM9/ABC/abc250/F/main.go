@@ -146,13 +146,16 @@ func main() {
 		i %= n
 		j %= n
 		k %= n
+		// 3角形の8倍した値を返す
 		return calc_triangle(x[i], y[i], x[j], y[j], x[k], y[k]) * 4
 	}
 
+	// 多角形の面積を求める
 	tot := 0
 	for j := 2; j < n; j++ {
 		tot += f(0, j-1, j)
 	}
+	// 1/4の面積の８倍を計算
 	tot /= 4
 
 	s, ans := 0, math.MaxInt64

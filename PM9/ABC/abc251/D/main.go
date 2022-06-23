@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"container/heap"
 	"fmt"
 	"math"
 	"os"
@@ -125,55 +124,7 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-type pqi struct{ a, cost int }
-
-type priorityQueue []pqi
-
-func (pq priorityQueue) Len() int            { return len(pq) }
-func (pq priorityQueue) Swap(i, j int)       { pq[i], pq[j] = pq[j], pq[i] }
-func (pq priorityQueue) Less(i, j int) bool  { return pq[i].a < pq[j].a }
-func (pq *priorityQueue) Push(x interface{}) { *pq = append(*pq, x.(pqi)) }
-func (pq *priorityQueue) Pop() interface{} {
-	x := (*pq)[len(*pq)-1]
-	*pq = (*pq)[0 : len(*pq)-1]
-	return x
-}
-
-type edge struct {
-	to, cost int
-}
-
-var node [][]edge
-var N int
-
-const inf = int(1e18)
-
-func dijkstra(s int) []int {
-	dist := make([]int, 2*N)
-	for i := 0; i < 2*N; i++ {
-		dist[i] = inf
-	}
-
-	pq := priorityQueue{}
-	heap.Push(&pq, pqi{s, 0})
-	dist[s] = 0
-	for len(pq) != 0 {
-		cur := pq[0]
-		heap.Pop(&pq)
-		if dist[cur.a] < cur.cost {
-			continue
-		}
-		for _, e := range node[cur.a] {
-			if dist[e.to] > dist[cur.a]+e.cost {
-				dist[e.to] = dist[cur.a] + e.cost
-				heap.Push(&pq, pqi{e.to, dist[e.to]})
-
-			}
-		}
-	}
-	return dist
-
-}
+var W int
 
 func main() {
 	defer wr.Flush()
@@ -181,20 +132,20 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	N = getI()
-	a := getInts(N)
-
-	node = make([][]edge, 2*N)
-	for i := 0; i < N; i++ {
-		node[i] = append(node[i], edge{N + (i+1)%N, a[i]})
-		node[N+i] = append(node[N+i], edge{i, 0})
-		node[N+i] = append(node[N+i], edge{(i + 1) % N, 0})
+	W = getI()
+	a := make([]int, 0)
+	for i := 1; i < 100; i++ {
+		a = append(a, i)
 	}
-	dist := dijkstra(0)
-	ans := dist[2*N-1]
-	dist = dijkstra(1)
-	ans = min(ans, dist[N])
-	dist = dijkstra(2)
-	ans = min(ans, dist[N+1])
-	out(ans)
+	for i := 100; i < 10000; i += 100 {
+		a = append(a, i)
+	}
+	for i := 10000; i < 1000000; i += 10000 {
+		a = append(a, i)
+	}
+	a = append(a, 1e6)
+	out(len(a))
+	for _, x := range a {
+		out(x)
+	}
 }

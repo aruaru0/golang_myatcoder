@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strconv"
 
-	rbt "github.com/emirpasic/gods/trees/redblacktree"
+	"github.com/emirpasic/gods/trees/redblacktree"
 )
 
 var sc = bufio.NewScanner(os.Stdin)
@@ -134,8 +134,34 @@ func main() {
 	// use getI(), getS(), getInts(), getF()
 	Q := getI()
 
-	tree := rbt.NewWithIntComparator()
+	tree := redblacktree.NewWithIntComparator()
 	for i := 0; i < Q; i++ {
-
+		t := getI()
+		switch t {
+		case 1:
+			x := getI()
+			v, ok := tree.Get(x)
+			if ok {
+				tree.Put(x, v.(int)+1)
+			} else {
+				tree.Put(x, 1)
+			}
+		case 2:
+			x, c := getI(), getI()
+			v, ok := tree.Get(x)
+			if ok {
+				t := v.(int)
+				t = t - min(c, t)
+				tree.Remove(x)
+				if t != 0 {
+					tree.Put(x, t)
+				}
+			}
+		case 3:
+			r := tree.Right().Key.(int)
+			l := tree.Left().Key.(int)
+			out(r - l)
+		}
+		// out("Tree-->", tree)
 	}
 }

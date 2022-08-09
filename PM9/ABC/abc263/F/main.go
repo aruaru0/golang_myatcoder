@@ -147,12 +147,16 @@ func main() {
 	}
 
 	merge := func(dpl, dpr []pair) []pair {
+		// l, rは同じ長さ。
 		length := len(dpl)
+		// lengthから現在のレベルを計算
 		level := 0
 		for 1<<level != length {
 			level += 1
 		}
+		// マージ
 		tmp := append(dpl, dpr...)
+		// 左側、右側のmaxを調べる
 		left_max := dpl[0].x
 		for _, e := range dpl {
 			left_max = max(left_max, e.x)
@@ -164,7 +168,9 @@ func main() {
 		// left win
 		for i := 0; i < length; i++ {
 			score, person := tmp[i].x, tmp[i].y
+			// 左が勝った場合は、右は右側の最高得点、左は現在のスコアからスコアを引いて、つぎのレベルで勝った場合のスコアを入れる
 			next_score := score - C[person][level] + C[person][level+1] + right_max
+			// 次のスコアを設定
 			tmp[i] = pair{next_score, person}
 		}
 
@@ -174,10 +180,12 @@ func main() {
 			next_score := score - C[person][level] + C[person][level+1] + left_max
 			tmp[i] = pair{next_score, person}
 		}
+		// 計算した結果を返す
 		return tmp
 	}
 
 	for i := 0; i < n-1; i++ {
+		// １つになるまで繰り返す（全部でn個）
 		dp = append(dp, merge(dp[i*2], dp[i*2+1]))
 	}
 

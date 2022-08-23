@@ -151,6 +151,9 @@ func main() {
 	for i := 0; i < N; i++ {
 		for a := 0; a <= i; a++ {
 			for b := 0; b <= i; b++ {
+				if i-a-b < 0 {
+					continue
+				}
 				x := a*dxdy[0].x + b*dxdy[1].x + (i-a-b)*dxdy[2].x
 				y := a*dxdy[0].y + b*dxdy[1].y + (i-a-b)*dxdy[2].y
 				for k := 0; k < 3; k++ {
@@ -159,9 +162,12 @@ func main() {
 						if k == 0 {
 							dp[i+1][a+1][b] += dp[i][a][b]
 							dp[i+1][a+1][b] %= mod
-						} else {
+						} else if k == 1 {
 							dp[i+1][a][b+1] += dp[i][a][b]
 							dp[i+1][a][b+1] %= mod
+						} else {
+							dp[i+1][a][b] += dp[i][a][b]
+							dp[i+1][a][b] %= mod
 						}
 					}
 				}

@@ -130,4 +130,15 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	K, S := getI(), getI()
+	ans := 0
+	for x := 0; x <= K; x++ {
+		for y := 0; y <= K; y++ {
+			z := S - x - y
+			if 0 <= z && z <= K {
+				ans++
+			}
+		}
+	}
+	out(ans)
 }

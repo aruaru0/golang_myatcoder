@@ -130,4 +130,10 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	A, op, B := getI(), getS(), getI()
+	if op == "+" {
+		out(A + B)
+	} else {
+		out(A - B)
+	}
 }

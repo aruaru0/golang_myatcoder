@@ -124,10 +124,90 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+const size = 210000
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	H, W, rs, cs := getI(), getI(), getI(), getI()
+	h := make(map[int][]int)
+	w := make(map[int][]int)
+	N := getI()
+	for i := 0; i < N; i++ {
+		r, c := getI(), getI()
+		h[r] = append(h[r], c)
+		w[c] = append(w[c], r)
+	}
+	for i := range h {
+		h[i] = append(h[i], 0, W+1)
+		sort.Ints(h[i])
+	}
+	for i := range w {
+		w[i] = append(w[i], 0, H+1)
+		sort.Ints(w[i])
+	}
+
+	Q := getI()
+	for q := 0; q < Q; q++ {
+		d, l := getS(), getI()
+		switch d[0] {
+		case 'L':
+			if len(h[rs]) == 0 {
+				cs = max(1, cs-l)
+			} else {
+				pos := lowerBound(h[rs], cs)
+				L := h[rs][pos-1]
+				// out(d, l, ":", L, R, h[rs])
+				if cs-l <= L {
+					cs = L + 1
+				} else {
+					cs = cs - l
+				}
+			}
+		case 'R':
+			if len(h[rs]) == 0 {
+				cs = min(W, cs+l)
+			} else {
+				pos := lowerBound(h[rs], cs)
+				R := h[rs][pos]
+				// out(d, l, ":", L, R, h[rs], pos)
+				// out("new", cs, L, l, max(R-cs, l))
+				if cs+l >= R {
+					cs = R - 1
+				} else {
+					cs += l
+				}
+			}
+		case 'U':
+			if len(w[cs]) == 0 {
+				rs = max(1, rs-l)
+			} else {
+				pos := lowerBound(w[cs], rs)
+				L := w[cs][pos-1]
+				// out(d, l, "rs", rs, ":", L, R, w[cs], pos)
+				if rs-l <= L {
+					rs = L + 1
+				} else {
+					rs = rs - l
+				}
+			}
+		case 'D':
+			if len(w[cs]) == 0 {
+				rs = min(H, rs+l)
+			} else {
+				pos := lowerBound(w[cs], rs)
+				R := w[cs][pos]
+				// out(d, l, ":", L, R, w[cs])
+				if rs+l >= R {
+					rs = R - 1
+				} else {
+					rs += l
+				}
+			}
+		}
+		out(rs, cs)
+	}
 }

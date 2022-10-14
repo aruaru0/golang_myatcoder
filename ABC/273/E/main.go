@@ -124,10 +124,62 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+type node struct {
+	val  int
+	prev *node
+	next []node
+}
+
+type BIT struct {
+	v []int
+}
+
+func (n *node) add(x int) *node {
+	ret := node{x, n, []node{}}
+	n.next = append(n.next, ret)
+	return &ret
+}
+
+func (n *node) back() *node {
+	if n.val == -1 {
+		return n
+	}
+	return n.prev
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+
+	q := &node{-1, nil, []node{}}
+
+	Q := getI()
+
+	p := make(map[int]*node)
+	for i := 0; i < Q; i++ {
+		c := getS()
+		switch c {
+		case "ADD":
+			x := getI()
+			q = q.add(x)
+		case "DELETE":
+			q = q.back()
+		case "SAVE":
+			y := getI()
+			p[y] = q
+		case "LOAD":
+			z := getI()
+			_, ok := p[z]
+			if !ok {
+				q = &node{-1, nil, []node{}}
+			} else {
+				q = p[z]
+			}
+		}
+		fmt.Fprint(wr, q.val, " ")
+	}
+	out()
 }

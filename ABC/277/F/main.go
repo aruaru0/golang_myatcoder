@@ -124,9 +124,7 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-type pair struct {
-	val, idx int
-}
+const INF = int(1e18)
 
 func main() {
 	defer wr.Flush()
@@ -134,46 +132,114 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	H, W := getI(), getI()
-	a := make([][]int, H)
-	for i := 0; i < H; i++ {
-		a[i] = getInts(W)
+	h, w := getI(), getI()
+	a := make([][]int, h)
+	for i := 0; i < h; i++ {
+		a[i] = getInts(w)
 	}
+	var rows [][2]int
 
-	p := make([][]int, H)
-	for i := 0; i < H; i++ {
-		for j := 0; j < W; j++ {
+	//行に関する条件の評価
+	for i := 0; i < h; i++ {
+		Min, Max := INF, -INF
+		for j := 0; j < w; j++ {
 			if a[i][j] == 0 {
 				continue
 			}
-			p[i] = append(p[i], a[i][j])
+			Min = min(Min, a[i][j])
+			Max = max(Max, a[i][j])
 		}
-		sort.Ints(p[i])
-	}
-	mx := make([]pair, 0)
-	for i := 0; i < H; i++ {
-		if len(p[i]) == 0 {
-			continue
+		if Min <= Max {
+			rows = append(rows, [2]int{Min, Max})
 		}
-		mx = append(mx, pair{p[i][len(p[i])-1], i})
 	}
-	sort.Slice(mx, func(i, j int) bool {
-		return mx[i].val < mx[j].val
+	sort.Slice(rows, func(i, j int) bool {
+		if rows[i][0] == rows[j][0] {
+			return rows[i][1] < rows[j][1]
+		}
+		return rows[i][0] < rows[j][0]
 	})
-
-	ok := true
-	for i := 1; i < len(mx); i++ {
-		idx0 := mx[i-1].idx
-		idx1 := mx[i].idx
-		n := len(p[idx0])
-		if p[idx0][n-1] > p[idx1][0] {
-			ok = false
+	for i := range rows {
+		if i == len(rows)-1 {
+			break
+		}
+		if rows[i][1] > rows[i+1][0] {
+			out("No")
+			return
 		}
 	}
 
-	if ok {
-		out("Yes")
-	} else {
-		out("No")
+	g := make([][]int, w+h*w+1)
+	//fmt.Println(len(g))
+	for r := 0; r < h; r++ {
+		var cols [][2]int
+		for c := 0; c < w; c++ {
+			if a[r][c] == 0 {
+				continue
+			}
+			cols = append(cols, [2]int{a[r][c], c})
+		}
+		sort.Slice(cols, func(i, j int) bool {
+			if cols[i][0] == cols[j][0] {
+				return cols[i][1] < cols[j][1]
+			}
+			return cols[i][0] < cols[j][0]
+		})
+		for i := 1; i < len(cols); i++ {
+			if cols[i-1][0] == cols[i][0] {
+				continue
+			}
+			v := w + cols[i-1][0]
+			for j := i - 1; j >= 0; j-- {
+				if cols[j][0] != cols[i-1][0] {
+					break
+				}
+				g[cols[j][1]] = append(g[cols[j][1]], v)
+			}
+			for j := i; j < len(cols); j++ {
+				if cols[j][0] != cols[i][0] {
+					break
+				}
+				g[v] = append(g[v], cols[j][1])
+			}
+		}
 	}
+	n := w + h*w
+	used := make([]bool, n)
+	var topo []int
+	var dfs func(x int)
+	dfs = func(x int) {
+		used[x] = true
+		for _, next := range g[x] {
+			if used[next] {
+				continue
+			}
+			dfs(next)
+		}
+		topo = append(topo, x)
+	}
+	for i := 0; i < n; i++ {
+		if !used[i] {
+			dfs(i)
+		}
+	}
+	for i := 0; i < len(topo)/2; i++ {
+		j := len(topo) - 1 - i
+		topo[i], topo[j] = topo[j], topo[i]
+	}
+	for i := 0; i < n; i++ {
+		used[i] = false
+	}
+
+	for _, v := range topo {
+		used[v] = true
+		for _, next := range g[v] {
+			if used[next] {
+				out("No")
+				return
+			}
+		}
+	}
+
+	out("Yes")
 }

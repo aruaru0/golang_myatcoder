@@ -130,4 +130,37 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	n, m := getI(), getI()
+	a := getInts(m)
+	for i := 0; i < m; i++ {
+		a[i]--
+	}
+	s := make([]int, m)
+	{
+		p := 0
+		for i := 0; i < m; i++ {
+			s[i] = p
+			if a[i] == p {
+				p++
+			} else if a[i]+1 == p {
+				p--
+			}
+		}
+	}
+
+	ans := make([]int, m)
+	{
+		p := make([]int, n)
+		for i := 0; i < n; i++ {
+			p[i] = i
+		}
+		for i := m - 1; i >= 0; i-- {
+			ans[i] = p[s[i]]
+			p[a[i]], p[a[i]+1] = p[a[i]+1], p[a[i]]
+		}
+	}
+
+	for i := 0; i < m; i++ {
+		out(ans[i] + 1)
+	}
 }

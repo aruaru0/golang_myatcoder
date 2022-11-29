@@ -124,10 +124,138 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+//
+// Disjoint Set Union: Union Find Tree
+//
+
+// DSU :
+type DSU struct {
+	parentOrSize []int
+	n            int
+}
+
+// newDsu :
+func newDsu(n int) *DSU {
+	var d DSU
+	d.n = n
+	d.parentOrSize = make([]int, n)
+	for i := 0; i < n; i++ {
+		d.parentOrSize[i] = -1
+	}
+	return &d
+}
+
+// Merge :
+func (d DSU) Merge(a, b int) int {
+	x, y := d.Leader(a), d.Leader(b)
+	if x == y {
+		return x
+	}
+	if -d.parentOrSize[x] < -d.parentOrSize[y] {
+		x, y = y, x
+	}
+	d.parentOrSize[x] += d.parentOrSize[y]
+	d.parentOrSize[y] = x
+	return x
+}
+
+// Same :
+func (d DSU) Same(a, b int) bool {
+	return d.Leader(a) == d.Leader(b)
+}
+
+// Leader :
+func (d DSU) Leader(a int) int {
+	if d.parentOrSize[a] < 0 {
+		return a
+	}
+	d.parentOrSize[a] = d.Leader(d.parentOrSize[a])
+	return d.parentOrSize[a]
+}
+
+// Size :
+func (d DSU) Size(a int) int {
+	return -d.parentOrSize[d.Leader(a)]
+}
+
+// Groups : original implement
+func (d DSU) Groups() [][]int {
+	m := make(map[int][]int)
+	for i := 0; i < d.n; i++ {
+		x := d.Leader(i)
+		if x < 0 {
+			m[i] = append(m[i], i)
+		} else {
+			m[x] = append(m[x], i)
+		}
+	}
+	ret := make([][]int, len(m))
+	idx := 0
+	for _, e := range m {
+		ret[idx] = make([]int, len(e))
+		copy(ret[idx], e)
+		idx++
+	}
+	return ret
+}
+
+type OP struct {
+	t, x, y int
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	n, q := getI(), getI()
+
+	uf := newDsu(n + q + 5)
+	balls := n
+
+	ld := make([]int, n+1)
+	for i := 0; i <= n; i++ {
+		ld[i] = -1
+	}
+	inv := make([]int, n+q+5)
+	for i := 0; i <= n; i++ {
+		ld[i] = i
+		inv[ld[i]] = i
+	}
+
+	for tr := 0; tr < q; tr++ {
+		typ := getI()
+		switch typ {
+		case 1:
+			x, y := getI(), getI()
+			if ld[y] == -1 {
+				continue
+			} else if ld[x] == -1 {
+				ld[x] = ld[y]
+				inv[ld[x]] = x
+				ld[y] = -1
+			} else {
+				uf.Merge(ld[x], ld[y])
+				ld[x] = uf.Leader(ld[x])
+				inv[ld[x]] = x
+				ld[y] = -1
+			}
+		case 2:
+			x := getI()
+			balls++
+			if ld[x] == -1 {
+				ld[x] = balls
+				inv[ld[x]] = x
+			} else {
+				uf.Merge(ld[x], balls)
+				ld[x] = uf.Leader(balls)
+				inv[ld[x]] = x
+			}
+		case 3:
+			x := getI()
+			tg := uf.Leader(x)
+			out(inv[tg])
+		}
+	}
 }

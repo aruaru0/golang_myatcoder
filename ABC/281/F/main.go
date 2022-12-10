@@ -124,10 +124,42 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+func rec(cur int, a []int) int {
+	if cur == -1 {
+		return 0
+	}
+
+	// curビットが0か1かで集合T,Sのどちらかに振り分ける
+	S := make([]int, 0)
+	T := make([]int, 0)
+	for i := 0; i < len(a); i++ {
+		if (a[i]>>cur)%2 == 0 {
+			S = append(S, a[i])
+		} else {
+			T = append(T, a[i])
+		}
+	}
+
+	// 片方だけしかないなら、その桁は0にできる
+	if len(S) == 0 {
+		return rec(cur-1, T)
+	}
+	if len(T) == 0 {
+		return rec(cur-1, S)
+	}
+
+	// TとSのどちらも存在する場合は、curに1が立ったもの＋下位の小さなほうが答えになる
+	return min(rec(cur-1, S), rec(cur-1, T)) | (1 << cur)
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	N := getI()
+	a := getInts(N)
+
+	out(rec(29, a))
 }

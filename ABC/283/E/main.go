@@ -124,10 +124,107 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+const inf = int(1e18)
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	H, W := getI(), getI()
+	a := make([][]int, H)
+	for i := 0; i < H; i++ {
+		a[i] = getInts(W)
+	}
+
+	get := func(i int, flip bool) []int {
+		res := make([]int, W)
+		copy(res, a[i])
+		if flip == true {
+			for i := 0; i < W; i++ {
+				res[i] ^= 1
+			}
+		}
+		return res
+	}
+
+	check := func(a0 []int, a1 []int, a2 []int) bool {
+		for i := 0; i < W; i++ {
+			if a0[i] == a1[i] {
+				continue
+			}
+			if a2[i] == a1[i] {
+				continue
+			}
+			if i != 0 && (a1[i-1] == a1[i]) {
+				continue
+			}
+			if i+1 < W && (a1[i+1] == a1[i]) {
+				continue
+			}
+			return false
+		}
+		return true
+	}
+
+	dp := make([]int, 4)
+	for i := 0; i < 4; i++ {
+		dp[i] = inf
+	}
+	for s := 0; s < 4; s++ {
+		a0 := make([]int, W)
+		for i := 0; i < W; i++ {
+			a0[i] = -1
+		}
+		a1 := get(0, s&2 != 0)
+		a2 := get(1, s&1 != 0)
+		cnt := 0
+		if s&1 != 0 {
+			cnt++
+		}
+		if s&2 != 0 {
+			cnt++
+		}
+		if check(a0, a1, a2) {
+			dp[s] = cnt
+		}
+	}
+
+	for i := 2; i < H; i++ {
+		p := make([]int, 4)
+		for j := 0; j < 4; j++ {
+			p[j] = inf
+		}
+		p, dp = dp, p
+		for s := 0; s < 4; s++ {
+			a0 := get(i-2, s&2 != 0)
+			a1 := get(i-1, s&1 != 0)
+			for x := 0; x < 2; x++ {
+				a2 := get(i, x != 0)
+				if check(a0, a1, a2) {
+					ns := (s&1)<<1 | x
+					dp[ns] = min(dp[ns], p[s]+x)
+				}
+			}
+		}
+	}
+
+	ans := inf
+	for s := 0; s < 4; s++ {
+		a0 := get(H-2, s&2 != 0)
+		a1 := get(H-1, s&1 != 0)
+		a2 := make([]int, W)
+		for i := 0; i < W; i++ {
+			a2[i] = -1
+		}
+		if check(a0, a1, a2) {
+			ans = min(ans, dp[s])
+		}
+	}
+
+	if ans == inf {
+		ans = -1
+	}
+	out(ans)
 }

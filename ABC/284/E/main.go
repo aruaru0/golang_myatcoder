@@ -124,10 +124,43 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+var node [][]int
+var used []bool
+var path int
+
+const inf = int(1e6)
+
+func dfs(cur int) {
+	if path >= inf {
+		return
+	}
+	used[cur] = true
+	path += 1
+	for _, e := range node[cur] {
+		if used[e] {
+			continue
+		}
+		dfs(e)
+	}
+	used[cur] = false
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	N, M := getI(), getI()
+	node = make([][]int, N)
+	for i := 0; i < M; i++ {
+		u, v := getI()-1, getI()-1
+		node[u] = append(node[u], v)
+		node[v] = append(node[v], u)
+	}
+
+	used = make([]bool, N)
+
+	dfs(0)
+	out(path)
 }

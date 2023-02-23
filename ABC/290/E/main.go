@@ -124,10 +124,48 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+func c2(n int) int {
+	return n * (n - 1) / 2
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	N := getI()
+	a := getInts(N)
+	for i := 0; i < N; i++ {
+		a[i]--
+	}
+
+	cnt := make([]int, N)
+	for i := 0; i < N; i++ {
+		cnt[a[i]]++
+	}
+
+	same := 0
+	for i := 0; i < N; i++ {
+		same += c2(cnt[i])
+	}
+
+	del := func(x int) {
+		same -= c2(cnt[x])
+		cnt[x]--
+		same += c2(cnt[x])
+	}
+
+	ans := 0
+	for i := 0; i < N; i++ {
+		l, r := i, N-1-i
+		if l >= r {
+			break
+		}
+		ans += c2(r-l+1) - same
+		del(a[l])
+		del(a[r])
+	}
+
+	out(ans)
 }

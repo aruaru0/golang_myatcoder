@@ -124,10 +124,40 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+type pos struct {
+	x, y int
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	N := getI()
+	s := getS()
+
+	visit := make(map[pos]bool)
+
+	x, y := 0, 0
+	visit[pos{x, y}] = true
+	for i := 0; i < N; i++ {
+		switch s[i] {
+		case 'L':
+			x--
+		case 'R':
+			x++
+		case 'U':
+			y++
+		case 'D':
+			y--
+		}
+		if visit[pos{x, y}] {
+			out("Yes")
+			return
+		}
+		visit[pos{x, y}] = true
+	}
+	out("No")
+
 }

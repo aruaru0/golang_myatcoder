@@ -124,10 +124,45 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+const mod = 998244353
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	N := getI()
+	a := make([]int, N)
+	b := make([]int, N)
+	for i := 0; i < N; i++ {
+		a[i], b[i] = getI(), getI()
+	}
+
+	a = append([]int{-1}, a...)
+	b = append([]int{-1}, b...)
+
+	// dp[i][j] i番目まで見て、最後のカードがj向きの時の選び方の数
+	dp := make([][2]int, N+1)
+	dp[0][0] = 1
+
+	for i := 0; i < N; i++ {
+		if a[i+1] != b[i] { // １つ前の裏が表と異なるなら
+			dp[i+1][0] += dp[i][1]
+			dp[i+1][0] %= mod
+		}
+		if b[i+1] != a[i] { // １つ前の表が裏と異なるなら
+			dp[i+1][1] += dp[i][0]
+			dp[i+1][1] %= mod
+		}
+		if a[i+1] != a[i] { // 1つ前の表が、表と異なるなら
+			dp[i+1][0] += dp[i][0]
+			dp[i+1][0] %= mod
+		}
+		if b[i+1] != b[i] { // 1つ前の裏が、裏と異なるなら
+			dp[i+1][1] += dp[i][1]
+			dp[i+1][1] %= mod
+		}
+	}
+	out((dp[N][0] + dp[N][1]) % mod)
 }

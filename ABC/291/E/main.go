@@ -124,10 +124,82 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+var path [][]int
+var used []bool
+var node [][]int
+
+func dfs(cur, pnum int) bool {
+	out("dfs", cur, node[cur])
+	used[cur] = true
+	path[pnum] = append(path[pnum], cur)
+	for _, e := range node[cur] {
+		if used[e] == true {
+			return false
+		}
+		ret := dfs(e, pnum)
+		if ret == false {
+			return false
+		}
+	}
+	return true
+}
+
+type pair struct {
+	x, y int
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	N, M := getI(), getI()
+
+	node = make([][]int, N)
+	num := make([]int, N)
+	m := make(map[pair]bool)
+
+	for i := 0; i < M; i++ {
+		x, y := getI()-1, getI()-1
+		if m[pair{x, y}] {
+			continue
+		}
+		m[pair{x, y}] = true
+		node[x] = append(node[x], y)
+		num[y]++
+	}
+
+	q := []int{}
+	for i := 0; i < N; i++ {
+		if num[i] == 0 {
+			q = append(q, i)
+		}
+	}
+
+	ans := make([]int, N)
+	cnt := 1
+
+	for len(q) != 0 {
+		if len(q) != 1 {
+			out("No")
+			return
+		}
+		cur := q[0]
+		q = q[1:]
+		ans[cur] = cnt
+		cnt++
+		for _, e := range node[cur] {
+			num[e]--
+			if num[e] == 0 {
+				q = append(q, e)
+			}
+		}
+	}
+
+	out("Yes")
+	for i := 0; i < N; i++ {
+		fmt.Fprint(wr, ans[i], " ")
+	}
+	out("")
 }

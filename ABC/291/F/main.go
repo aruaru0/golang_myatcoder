@@ -124,10 +124,61 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+const inf = int(1e18)
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	n, m := getI(), getI()
+	s := make([]string, n)
+	for i := 0; i < n; i++ {
+		s[i] = getS()
+	}
+
+	// dp0[i] 0からスタートしてi番目にだとりつく経路の数
+	// dp1[i] Nからスタートしてi番目にたどりつく経路の数
+	dp0 := make([]int, n)
+	dp1 := make([]int, n)
+	for i := 0; i < n; i++ {
+		dp0[i] = inf
+		dp1[i] = inf
+	}
+
+	dp0[0] = 0
+	for i := 1; i < n; i++ {
+		for j := 1; j <= min(m, i); j++ {
+			if s[i-j][j-1] == '1' {
+				dp0[i] = min(dp0[i], dp0[i-j]+1)
+			}
+		}
+	}
+	dp1[n-1] = 0
+	for i := n - 2; i >= 0; i-- {
+		for j := 1; j <= min(m, n-1-i); j++ {
+			if s[i][j-1] == '1' {
+				dp1[i] = min(dp1[i], dp1[i+j]+1)
+			}
+		}
+	}
+
+	//
+	for k := 1; k < n-1; k++ {
+		ans := inf
+		for i := max(k-m+1, 0); i < k; i++ {
+			for j := k + 1; j < min(n, i+m+1); j++ {
+				if s[i][j-i-1] == '1' {
+					ans = min(ans, dp0[i]+dp1[j]+1)
+				}
+			}
+		}
+		if ans == inf {
+			fmt.Fprint(wr, -1, " ")
+		} else {
+			fmt.Fprint(wr, ans, " ")
+		}
+	}
+	out()
 }

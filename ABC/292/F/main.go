@@ -124,10 +124,24 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+func f(a, b float64) float64 {
+	return a * math.Sqrt(1+math.Min(1/3.0, math.Pow(2*b/a-math.Sqrt(3), 2)))
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	A, B := getF(), getF()
+	if A > B {
+		A, B = B, A
+	}
+
+	ans := f(A, B)
+	if math.Sqrt(3)*B <= 2*A {
+		ans = math.Max(ans, f(B, A))
+	}
+	out(ans)
 }

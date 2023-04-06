@@ -124,10 +124,85 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+type BIT struct {
+	v []int
+}
+
+func newBIT(n int) *BIT {
+	b := new(BIT)
+	b.v = make([]int, n)
+	return b
+}
+func (b BIT) sum(a int) int {
+	ret := 0
+	for i := a + 1; i > 0; i -= i & -i {
+		ret += b.v[i-1]
+	}
+	return ret
+}
+func (b BIT) rangeSum(x, y int) int {
+	if y == 0 {
+		return 0
+	}
+	y--
+	if x == 0 {
+		return b.sum(y)
+	} else {
+		return b.sum(y) - b.sum(x-1)
+	}
+}
+func (b BIT) add(a, w int) {
+	n := len(b.v)
+	for i := a + 1; i <= n; i += i & -i {
+		b.v[i-1] += w
+	}
+}
+
+type pair struct {
+	a, b int
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	N := getI()
+	a := getInts(N)
+	b := getInts(N)
+
+	c := newBIT(N + 1)
+	d := newBIT(N + 1)
+
+	z := 0
+	for i := 0; i < N; i++ {
+		z += c.rangeSum(a[i], N+1)
+		c.add(a[i]-1, 1)
+	}
+	for i := 0; i < N; i++ {
+		z += d.rangeSum(b[i], N+1)
+		d.add(b[i]-1, 1)
+	}
+
+	sort.Ints(a)
+	sort.Ints(b)
+	for i := 0; i < N; i++ {
+		if a[i] != b[i] {
+			out("No")
+			return
+		}
+	}
+
+	for i := 0; i < N-1; i++ {
+		if a[i] == a[i+1] {
+			out("Yes")
+			return
+		}
+	}
+	if z%2 == 1 {
+		out("No")
+	} else {
+		out("Yes")
+	}
 }

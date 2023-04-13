@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"math"
 	"os"
@@ -124,10 +125,42 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+type pqi struct{ a int }
+
+type priorityQueue []pqi
+
+func (pq priorityQueue) Len() int            { return len(pq) }
+func (pq priorityQueue) Swap(i, j int)       { pq[i], pq[j] = pq[j], pq[i] }
+func (pq priorityQueue) Less(i, j int) bool  { return pq[i].a < pq[j].a }
+func (pq *priorityQueue) Push(x interface{}) { *pq = append(*pq, x.(pqi)) }
+func (pq *priorityQueue) Pop() interface{} {
+	x := (*pq)[len(*pq)-1]
+	*pq = (*pq)[0 : len(*pq)-1]
+	return x
+}
+
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	N, K := getI(), getI()
+	a := getInts(N)
+
+	pq := priorityQueue{}
+	m := make(map[int]bool)
+	heap.Push(&pq, pqi{0})
+	for i := 0; i < K; i++ {
+		x := pq[0].a
+		heap.Pop(&pq)
+		for _, e := range a {
+			y := x + e
+			if !m[y] {
+				m[y] = true
+				heap.Push(&pq, pqi{y})
+			}
+		}
+	}
+	out(pq[0].a)
 }

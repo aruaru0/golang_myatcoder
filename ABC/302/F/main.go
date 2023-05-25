@@ -130,4 +130,47 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
+	N, M := getI(), getI()
+	s := make([][]int, N)
+	for i := 0; i < N; i++ {
+		a := getI()
+		s[i] = getInts(a)
+	}
+	offset := N
+	node := make([][]int, N+M)
+	for i := 0; i < N; i++ {
+		for _, e := range s[i] {
+			e--
+			node[i] = append(node[i], e+offset)
+			node[e+offset] = append(node[e+offset], i)
+		}
+	}
+
+	const inf = int(1e18)
+
+	dist := make([]int, N+M)
+	for i := 0; i < N+M; i++ {
+		dist[i] = inf
+	}
+	dist[offset] = 0
+	q := []int{offset}
+
+	for len(q) != 0 {
+		cur := q[0]
+		q = q[1:]
+		for _, e := range node[cur] {
+			if dist[e] > dist[cur]+1 {
+				dist[e] = dist[cur] + 1
+				q = append(q, e)
+			}
+		}
+	}
+	// out(node)
+
+	if dist[N+M-1] == inf {
+		out(-1)
+		return
+	}
+	// out(dist)
+	out(dist[N+M-1]/2 - 1)
 }

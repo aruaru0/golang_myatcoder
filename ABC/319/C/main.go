@@ -221,15 +221,6 @@ func main() {
 	}
 
 	p := []int{0, 1, 2, 3, 4, 5, 6, 7, 8}
-	// for i := 0; i < 9; i++ {
-	// 	px, py := calc_xy(x[i])
-	// 	out(x[i], px, py)
-	// }
-	// var a [3][3]int
-	// a[1][1] = 6
-	// a[2][2] = 6
-	// out(a, check(0, 0, 7, a))
-	// return
 
 	tot := 0.0
 	cnt := 0.0

@@ -184,7 +184,6 @@ func main() {
 	A[1][1] = 0
 
 	ret := powModMatrix(A, N-2)
-	// out(ret)
 
 	ans := (ret[0][0] + ret[0][1]) % mod
 	out(ans)

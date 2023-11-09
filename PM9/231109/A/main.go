@@ -136,10 +136,10 @@ func main() {
 	p := make([]bool, size)
 	q := make([]bool, R-L+1)
 
-	for i := 2; i < size; i++ {
+	for i := 0; i < size; i++ {
 		p[i] = true
 	}
-	for i := 2; i < R-L+1; i++ {
+	for i := 0; i < R-L+1; i++ {
 		q[i] = true
 	}
 
@@ -149,23 +149,29 @@ func main() {
 		}
 	}
 
-	if R <= size {
-		cnt := 0
-		for i := L; i <= R; i++ {
-			if p[i] {
-				cnt++
-			}
-		}
-		out(cnt)
-		return
-	}
+	// if R <= size {
+	// 	cnt := 0
+	// 	for i := L; i <= R; i++ {
+	// 		if p[i] {
+	// 			cnt++
+	// 		}
+	// 	}
+	// 	out(cnt)
+	// 	return
+	// }
 
+	if L == 1 {
+		q[0] = false
+	}
 	for i := 2; i*i <= R; i++ {
 		if p[i] {
 			pos := i * ((L + i - 1) / i)
-			// out(i, "----", pos)
+			// out(i, "----", L, pos, q)
+			if pos == i {
+				pos += i
+			}
 			for j := pos; j <= R; j += i {
-				// out(j - L)
+				// out(j)
 				q[j-L] = false
 			}
 		}

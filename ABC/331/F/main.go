@@ -125,16 +125,17 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
+// ハッシュの衝突の可能性があるので２つ同時に動かす
 type mints struct {
 	d1, d2 int
 }
 
 func plus(a, b mints) mints {
-	return mints{(a.d1 + b.d1) % p, (a.d2 + b.d2) % p}
+	return mints{(a.d1 + b.d1) % p1, (a.d2 + b.d2) % p2}
 }
 
 func mul(a, b mints) mints {
-	return mints{(a.d1 * b.d1) % p, (a.d2 * b.d2) % p}
+	return mints{(a.d1 * b.d1) % p1, (a.d2 * b.d2) % p2}
 }
 
 func eq(a, b mints) bool {
@@ -145,6 +146,7 @@ func minit(val int) mints {
 	return mints{val, val}
 }
 
+// セグメントツリー
 type S struct {
 	h, c mints
 }
@@ -222,7 +224,8 @@ func (seg *Segtree) ceilPow2(n int) int {
 	return x
 }
 
-const p = 1000000021
+const p1 = 1000000007
+const p2 = 1000000021
 
 func main() {
 	defer wr.Flush()
@@ -243,7 +246,7 @@ func main() {
 
 	v1 := make([]S, N)
 	v2 := make([]S, N)
-	x := rand.Intn(p) % p
+	x := rand.Intn(p1) % p1
 	for i := 0; i < N; i++ {
 		v1[i] = S{minit(int(s[i])), minit(x)}
 		v2[N-1-i] = S{minit(int(s[i])), minit(x)}

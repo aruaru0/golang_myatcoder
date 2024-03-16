@@ -143,6 +143,7 @@ func main() {
 	dp2[0] = 0
 	s := 0
 	for i := 1; i <= N; i++ {
+		// 総和を計算
 		s += a[i-1]
 		dp[i] = dp[i-1]
 		if i >= K {

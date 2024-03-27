@@ -137,7 +137,6 @@ func main() {
 	c := getInts(N)
 
 	ans := inf
-	// 0101010101...または、1010101010にするコストを計算
 	for i := 0; i < 2; i++ {
 		cur := i
 		a := make([]int, N+1)

@@ -124,22 +124,34 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-func f(y, x int) int {
-	a := [][]int{{0, 0, 0, 0, 0}, {0, 2, 3, 3, 4}, {0, 3, 6, 7, 8}}
-	sub1 := (y / 2) * (x / 4) * a[2][4]
-	sub2 := (y / 2) * a[2][x%4]
-	sub3 := (x / 4) * a[y%2][4]
-	sub4 := a[y%2][x%4]
-	return sub1 + sub2 + sub3 + sub4
-}
-
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	m := int(1e9)
-	a, b, c, d := getI()+m, getI()+m, getI()+m, getI()+m
-	out(f(d, c) - f(d, a) - f(b, c) + f(b, a))
+	n := getI()
+	a := make([]int, n)
+	b := make([]int, n)
+	for i := 0; i < n; i++ {
+		a[i], b[i] = getI(), getI()
+	}
+
+	dp := make([]bool, 1<<n)
+	for mask := 0; mask < 1<<n; mask++ {
+		for i := 0; i < n; i++ {
+			for j := i + 1; j < n; j++ {
+				if mask>>i&1 == 1 && mask>>j&1 == 1 && (a[i] == a[j] || b[i] == b[j]) {
+					// ^(1<<i)^(1<<j)で、ビットを０にしているので、以前の判定結果を反転になる
+					// １つ前の勝ち負けを反転させる処理
+					dp[mask] = dp[mask] || !dp[mask^(1<<i)^(1<<j)]
+				}
+			}
+		}
+	}
+	if dp[(1<<n)-1] {
+		out("Takahashi")
+	} else {
+		out("Aoki")
+	}
 }

@@ -130,20 +130,29 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	A, B, C := getI(), getI(), getI()
+	N, M := getI(), getI()
 
-	if C < B {
-		if C <= A && A <= B {
-			out("Yes")
-		} else {
-			out("No")
+	ans := 0
+	a := getInts(M)
+	for i := 0; i < N; i++ {
+		h := getInts(M)
+		score := 100
+		for j := 0; j < M; j++ {
+			diff := abs(a[j] - h[j])
+			if diff <= 5 {
+			} else if diff <= 10 {
+				score--
+			} else if diff <= 20 {
+				score -= 2
+			} else if diff <= 30 {
+				score -= 3
+			} else {
+				score -= 5
+			}
 		}
-		return
-	} else {
-		if A <= B || C <= A {
-			out("Yes")
-		} else {
-			out("No")
-		}
+		score = max(0, score)
+		ans = max(ans, score)
 	}
+	out(ans)
+
 }

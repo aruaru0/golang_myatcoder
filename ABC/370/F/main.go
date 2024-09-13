@@ -175,9 +175,10 @@ func main() {
 					v = to[i][v]
 				}
 			}
-			if cost > N {
+			if cost > N { // cost > Nということは、ここからスタートできない＝切れ目にならないということ
 				res++
 			}
+
 		}
 		return res
 	}

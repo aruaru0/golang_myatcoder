@@ -159,5 +159,4 @@ func main() {
 		ans = c
 	}
 	out(ans)
-
 }

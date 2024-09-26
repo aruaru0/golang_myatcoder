@@ -131,8 +131,96 @@ func upperBound(a []int, x int) int {
 	return idx
 }
 
-type Pair struct {
-	col, cnt int
+//
+// Disjoint Set Union: Union Find Tree
+//
+
+// DSU :
+type DSU struct {
+	parentOrSize []int
+	n            int
+}
+
+// newDsu :
+func newDsu(n int) *DSU {
+	var d DSU
+	d.n = n
+	d.parentOrSize = make([]int, n)
+	for i := 0; i < n; i++ {
+		d.parentOrSize[i] = -1
+	}
+	return &d
+}
+
+// Merge :
+func (d DSU) Merge(a, b int) int {
+	x, y := d.Leader(a), d.Leader(b)
+	if x == y {
+		return x
+	}
+	if -d.parentOrSize[x] < -d.parentOrSize[y] {
+		x, y = y, x
+	}
+	d.parentOrSize[x] += d.parentOrSize[y]
+	d.parentOrSize[y] = x
+	return x
+}
+
+// Same :
+func (d DSU) Same(a, b int) bool {
+	return d.Leader(a) == d.Leader(b)
+}
+
+// Leader :
+func (d DSU) Leader(a int) int {
+	if d.parentOrSize[a] < 0 {
+		return a
+	}
+	d.parentOrSize[a] = d.Leader(d.parentOrSize[a])
+	return d.parentOrSize[a]
+}
+
+// Size :
+func (d DSU) Size(a int) int {
+	return -d.parentOrSize[d.Leader(a)]
+}
+
+// Groups : original implement
+func (d DSU) Groups() [][]int {
+	m := make(map[int][]int)
+	for i := 0; i < d.n; i++ {
+		x := d.Leader(i)
+		if x < 0 {
+			m[i] = append(m[i], i)
+		} else {
+			m[x] = append(m[x], i)
+		}
+	}
+	ret := make([][]int, len(m))
+	idx := 0
+	for _, e := range m {
+		ret[idx] = make([]int, len(e))
+		copy(ret[idx], e)
+		idx++
+	}
+	return ret
+}
+
+func merge(a, b []int) []int {
+	ret := make([]int, 0)
+	l, r := 0, 0
+	for l < len(a) && r < len(b) {
+		if a[l] < b[r] {
+			ret = append(ret, a[l])
+			l++
+		} else {
+			ret = append(ret, b[r])
+			r++
+		}
+	}
+	ret = append(ret, a[l:]...)
+	ret = append(ret, b[r:]...)
+	return ret
 }
 
 func main() {
@@ -141,51 +229,46 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	H, W, M := getI(), getI(), getI()
+	N, Q := getI(), getI()
 
-	T, A, X := make([]int, M), make([]int, M), make([]int, M)
-	for i := 0; i < M; i++ {
-		T[i], A[i], X[i] = getI(), getI(), getI()
+	uf := newDsu(N)
+	p := make([][]int, N)
+	for i := 0; i < N; i++ {
+		p[i] = append(p[i], i)
 	}
 
-	h := make(map[int]bool)
-	w := make(map[int]bool)
-
-	tot := make(map[int]int)
-	tot[0] = H * W
-	for i := M - 1; i >= 0; i-- {
-		t, a, x := T[i], A[i], X[i]
-
+	for qi := 0; qi < Q; qi++ {
+		t := getI()
 		if t == 1 {
-			if h[a] == false {
-				h[a] = true
-				cnt := W - len(w)
-				tot[0] -= cnt
-				tot[x] += cnt
+			u, v := getI()-1, getI()-1
+			if !uf.Same(u, v) {
+				x := p[uf.Leader(u)]
+				y := p[uf.Leader(v)]
+				// out(u, v, "xy", x, y)
+				// z := merge(x, y)
+				z := append(x, y...)
+				sort.Ints(z)
+
+				p[u] = []int{}
+				p[v] = []int{}
+				uf.Merge(u, v)
+				l := uf.Leader(u)
+				p[l] = z[max(0, len(z)-10):]
+				// out(l, u, v, p)
 			}
 		} else {
-			if w[a] == false {
-				w[a] = true
-				cnt := H - len(h)
-				tot[0] -= cnt
-				tot[x] += cnt
+			u, k := getI()-1, getI()
+			l := uf.Leader(u)
+			n := len(p[uf.Leader(u)])
+			if n < k {
+				out(-1)
+			} else {
+				// out("t==2 ", u, k, p)
+				out(p[l][n-k] + 1)
 			}
 		}
 	}
 
-	ans := []Pair{}
-	for e := range tot {
-		if tot[e] != 0 {
-			ans = append(ans, Pair{e, tot[e]})
-		}
-	}
-
-	sort.Slice(ans, func(i, j int) bool {
-		return ans[i].col < ans[j].col
-	})
-
-	out(len(ans))
-	for _, e := range ans {
-		out(e.col, e.cnt)
-	}
+	// x := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
+	// out(x[len(x)-10:])
 }

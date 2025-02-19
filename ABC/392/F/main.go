@@ -298,6 +298,9 @@ func main() {
 
 	ans := make([]int, N)
 	for i := N - 1; i >= 0; i-- {
+		for k := 0; k < N; k++ {
+			out(seg.Get(k))
+		}
 		j := getK(p[i])
 		ans[j] = i + 1
 		seg.Set(j, 0)

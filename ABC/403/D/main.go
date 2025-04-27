@@ -171,7 +171,9 @@ func main() {
 		}
 		dp[0][0] = 0
 		for j := 0; j < len(cnt); j++ {
+			// j個目の値を消す場合は、cnt[j]個消す。遷移はどちらからでもOK
 			dp[j+1][0] = min(dp[j][0]+cnt[j], dp[j][1]+cnt[j])
+			// j個目を残す場合は、1つ前は消してなければダメ
 			dp[j+1][1] = dp[j][0]
 		}
 		ans += min(dp[len(cnt)][0], dp[len(cnt)][1])

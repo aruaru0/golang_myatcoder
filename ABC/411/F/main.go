@@ -223,9 +223,9 @@ func main() {
 	n, m := getI(), getI()
 	u := make([]int, N)
 	v := make([]int, N)
-	p := make([][]int, N)
+	p := make([][]int, N) // 現在所属している頂点のグループ
 	pRev := make([]int, N)
-	e := make([]map[int]bool, N)
+	e := make([]map[int]bool, N) // u->vの辺を管理
 
 	for i := 0; i < n; i++ {
 		pRev[i] = i
@@ -248,34 +248,38 @@ func main() {
 		vy := pRev[v[x]]
 
 		if vx != vy {
+			// 辺の数　＋　頂点数
 			valx := len(e[vx]) + len(p[vx])
 			valy := len(e[vy]) + len(p[vy])
+			// 小さい方をvxにする
 			if valx > valy {
 				vx, vy = vy, vx
 			}
 
+			// vxの頂点をvyに移し、頂点の親をvyに設定する
 			for _, node := range p[vx] {
 				p[vy] = append(p[vy], node)
 				pRev[node] = vy
 			}
 			p[vx] = nil
 
+			// vxの辺に関する処理
 			for vz := range e[vx] {
-				if vz == vy {
+				if vz == vy { // vyへの接続は減らして、マップから削除
 					m--
 					delete(e[vy], vx)
 				} else {
-					if _, ok := e[vy][vz]; ok {
+					if _, ok := e[vy][vz]; ok { // 辺があれば辺を削除
 						m--
-					} else {
+					} else { // 辺がなければ追加（移動なので辺は増えない）
 						e[vy][vz] = true
 						e[vz][vy] = true
 					}
 					delete(e[vz], vx)
 				}
 			}
-			e[vx] = nil
+			e[vx] = nil // vxのマップを空にする（メモリ削減）
 		}
-		out(m)
+		out(m) // 現在の辺数を表示
 	}
 }

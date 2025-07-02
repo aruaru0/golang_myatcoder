@@ -185,62 +185,56 @@ func main() {
 	}
 
 	for {
-		g := make(map[edge]bool)
+		// まとめて１つにする場合
+		cnt0 := 0
+		find0 := 0
 		for i := 0; i < N; i++ {
 			u, v := a[i], a[(i+1)%N]
 			if u > v {
 				u, v = v, u
 			}
-			g[edge{u, v}] = true
-		}
-
-		cnt0 := 0
-		find0 := 0
-		for e := range g {
-			if !f[e] {
+			if !f[edge{u, v}] {
 				cnt0++
 			} else {
 				find0++
 			}
 		}
 		cnt0 += len(f) - find0
-		// for i := 0; i < N; i++ {
-		// 	for j := 0; j < N; j++ {
-		// 		if f[edge{i, j}] != g[edge{i, j}] {
-		// 			cnt0++
-		// 		}
-		// 	}
-		// }
-
 		ans = min(ans, cnt0)
 
-		for d := 3; d <= N-3; d++ {
-			h := make(map[edge]bool)
-			for i := 0; i < d; i++ {
-				u, v := a[i], a[(i+1)%d]
-				if u > v {
-					u, v = v, u
+		if N >= 6 { // 6以上ある場合は分割可能
+			// a[:d]とa[d:]に分割
+			for d := 3; d <= N-3; d++ {
+				cnt1 := 0
+				find1 := 0
+				a0 := a[:d]
+				for i := 0; i < d; i++ {
+					u, v := a0[i], a0[(i+1)%len(a0)]
+					if u > v {
+						u, v = v, u
+					}
+					if !f[edge{u, v}] {
+						cnt1++
+					} else {
+						find1++
+					}
 				}
-				h[edge{u, v}] = true
-			}
-			for i := 0; i < N-d; i++ {
-				u, v := a[i+d], a[(i+1)%(N-d)+d]
-				if u > v {
-					u, v = v, u
+				a1 := a[d:]
+				for i := 0; i < len(a1); i++ {
+					u, v := a1[i], a1[(i+1)%len(a1)]
+					if u > v {
+						u, v = v, u
+					}
+					if !f[edge{u, v}] {
+						cnt1++
+					} else {
+						find1++
+					}
 				}
-				h[edge{u, v}] = true
+
+				cnt1 += len(f) - find1
+				ans = min(ans, cnt1)
 			}
-			cnt1 := 0
-			find1 := 0
-			for e := range h {
-				if !f[e] {
-					cnt1++
-				} else {
-					find1++
-				}
-			}
-			cnt1 += len(f) - find1
-			ans = min(ans, cnt1)
 		}
 
 		if NextPermutation(sort.IntSlice(a)) == false {

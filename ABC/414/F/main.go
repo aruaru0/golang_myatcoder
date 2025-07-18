@@ -148,10 +148,10 @@ type Edge struct {
 	U, V int
 }
 
-type Pair struct {
-	To     int
-	EdgeID int
-}
+// type Pair struct {
+// 	To     int
+// 	EdgeID int
+// }
 
 type QueueItem struct {
 	EdgeID int
@@ -163,7 +163,7 @@ func solve() {
 	k := getI()
 
 	edges := make([]Edge, 0, n-1)
-	g := make([][]Pair, n)
+	g := make([][]int, n)
 
 	for i := 0; i < n-1; i++ {
 		a := getI() - 1
@@ -171,8 +171,8 @@ func solve() {
 
 		edges = append(edges, Edge{a, b})
 
-		g[a] = append(g[a], Pair{b, i})
-		g[b] = append(g[b], Pair{a, n - 1 + i})
+		g[a] = append(g[a], i)
+		g[b] = append(g[b], n-1+i)
 	}
 
 	dist := make([][]int, (n-1)*2)
@@ -200,7 +200,7 @@ func solve() {
 	}
 
 	for _, entry := range g[0] {
-		push(entry.EdgeID, 1)
+		push(entry, 1)
 	}
 
 	for len(q) != 0 {
@@ -221,8 +221,8 @@ func solve() {
 		cnt[v][d%k]++
 
 		if cnt[v][d%k] <= 2 {
-			for _, entry := range g[v] {
-				ej := entry.EdgeID
+			for _, e := range g[v] {
+				ej := e
 				if d%k != 0 && ei%(n-1) == ej%(n-1) {
 					continue
 				}

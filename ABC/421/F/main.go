@@ -250,26 +250,20 @@ func main() {
 		pos[e] = i
 	}
 
-	// セグメント木の設定
 	e := func() S { return S{0} }
 	merger := func(a, b S) S { return S{a.val + b.val} }
-	// f.val=1なら削除(値を0に)、0なら何もしない
 	mapper := func(f F, x S) S {
 		if f.val == 1 {
 			return S{0}
 		}
 		return x
 	}
-	// 削除(1)が優先されるように合成
 	comp := func(f, g F) F { return F{max(f.val, g.val)} }
 	id := func() F { return F{0} }
 
-	// セグメント木をpの長さで初期化
 	seg := newLazySegtree(make([]S, len(p)), e, merger, mapper, comp, id)
-	// 初期値0をセット
 	seg.Set(pos[0], S{0})
 
-	// クエリのシミュレーション
 	for qi := 0; qi < Q; qi++ {
 		if op[qi].t == 1 {
 			// 値(qi+1)を対応する位置にセット

@@ -174,15 +174,14 @@ func main() {
 	a := getInts(N)
 
 	f := func(x int) int {
-		cnt := 1
+		cnt := 0
 		tot := 0
 		for i := 0; i < N; i++ {
-			if tot+a[i] > x {
+			tot += a[i]
+			if tot >= x {
 				cnt++
 				tot = 0
-				continue
 			}
-			tot += a[i]
 		}
 		return cnt
 	}
@@ -191,13 +190,12 @@ func main() {
 	for l+1 != r {
 		m := (l + r) / 2
 		k := f(m)
-		// out(m, k)
-		if k <= K {
-			r = m
-		} else {
+		if k >= K {
 			l = m
+		} else {
+			r = m
 		}
 	}
-	out(r)
+	out(l)
 
 }

@@ -164,33 +164,17 @@ func compressArray(a []int) []int {
 	return ret
 }
 
-type dice struct {
-	x, y, z int
-}
-
 func main() {
 	defer wr.Flush()
 	sc.Split(bufio.ScanWords)
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	a := make([][]int, 3)
-	for i := 0; i < 3; i++ {
-		a[i] = getInts(6)
-	}
+	A, B, C := getI(), getI(), getI()
 
-	cnt := 0
-	for _, x := range a[0] {
-		for _, y := range a[1] {
-			for _, z := range a[2] {
-				b := []int{x, y, z}
-				sort.Ints(b)
-				if b[0] == 4 && b[1] == 5 && b[2] == 6 {
-					cnt++
-				}
-			}
-		}
+	if A != B && B == C {
+		out("Yes")
+	} else {
+		out("No")
 	}
-
-	out(float64(cnt) / (6.0 * 6.0 * 6.0))
 }

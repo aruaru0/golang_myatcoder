@@ -170,20 +170,31 @@ func main() {
 	sc.Buffer([]byte{}, math.MaxInt32)
 	// this template is new version.
 	// use getI(), getS(), getInts(), getF()
-	X := getI()
+	H, W := getI(), getI()
+	s := getStrings(H)
 
-	m := make(map[int]bool)
-	for i := 1; i <= 6; i++ {
-		for j := 1; j <= 6; j++ {
-			for k := 1; k <= 6; k++ {
-				m[i+j+k] = true
+	f := func(h1, h2, w1, w2 int) bool {
+		for i := h1; i <= h2; i++ {
+			for j := w1; j <= w2; j++ {
+				if s[i][j] != s[h1+h2-i][w1+w2-j] {
+					return false
+				}
+			}
+		}
+		return true
+	}
+
+	cnt := 0
+	for h1 := 0; h1 < H; h1++ {
+		for h2 := h1; h2 < H; h2++ {
+			for w1 := 0; w1 < W; w1++ {
+				for w2 := w1; w2 < W; w2++ {
+					if f(h1, h2, w1, w2) {
+						cnt++
+					}
+				}
 			}
 		}
 	}
-
-	if m[X] {
-		out("Yes")
-	} else {
-		out("No")
-	}
+	out(cnt)
 }

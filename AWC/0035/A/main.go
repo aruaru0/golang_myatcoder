@@ -175,9 +175,8 @@ func main() {
 
 	for i := 0; i < M; i++ {
 		u, v, w := getI()-1, getI()-1, getI()
-		d := min(p[u], w)
-		p[u] -= d
-		p[v] += d
+		p[u] -= w
+		p[v] += w
 	}
 
 	ans := 0

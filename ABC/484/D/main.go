@@ -177,7 +177,7 @@ func main() {
 	N := getI()
 	a := getInts(N)
 
-	c := make([]int, N+1)
+	c := make(map[int]int)
 	ans := 1
 	for i := 0; i < N; i++ {
 		if i != 0 && a[i] != a[i-1] {
